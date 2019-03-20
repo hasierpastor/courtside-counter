@@ -3,7 +3,7 @@ const app = express();
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
-const secret = require('./secret');
+const { secret } = require('./secret');
 
 app.use(express.json());
 
@@ -37,9 +37,15 @@ app.get('/players', function(req, res, next) {
  */
 app.post('/players', async function(req, res, next) {
   const player = req.body;
-  console.log(player);
-  await db.collection('players').insertOne(player);
-  return res.json({ status: 'success', player });
+  const foundPlayer = await db
+    .collection('players')
+    .findOne({ email: { $eq: player.email } });
+  if (foundPlayer === null) {
+    await db.collection('players').insertOne(player);
+    return res.json({ status: 'success', player });
+  } else {
+    return res.json({ message: 'player already checked in' });
+  }
 });
 
 /**
@@ -75,16 +81,41 @@ app.get('/players/count', async function(req, res, next) {
 /**
  * Route handler for POST to /signup => allows a player to signup
  */
-app.get('/signup', async function(req, res, next) {
-  let user = req.body;
-  const token = jwt.sign(user, secret);
-  return res.json(token);
+app.post('/signup', async function(req, res, next) {
+  const userEmail = req.body.email;
+  const newUser = req.body;
+  const userFound = await db
+    .collection('users')
+    .findOne({ email: { $eq: userEmail } });
+  if (userFound === null) {
+    const token = jwt.sign(newUser, secret);
+    await db.collection('users').insertOne(user);
+    return res.json(token);
+  } else {
+    const token = jwt.sign(userFound, secret);
+    return res.json(token);
+  }
 });
 
 /**
  * Route handler for POST to /login => allows a player to login
  */
-app.get('/login', async function(req, res, next) {});
+app.post('/login', async function(req, res, next) {
+  const userEmail = req.body.email;
+  const user = req.body;
+  const userFound = await db
+    .collection('users')
+    .findOne({ email: { $eq: userEmail } });
+  console.log(userFound);
+  if (userFound === null) {
+    // add error handling later
+    const err = new Error('User not found');
+    next(err);
+  } else {
+    const token = jwt.sign(user, secret);
+    res.json(token);
+  }
+});
 
 /** 404 handler */
 
