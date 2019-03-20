@@ -2,6 +2,8 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
+const jwt = require('jsonwebtoken');
+const secret = require('./secret');
 
 app.use(express.json());
 
@@ -31,15 +33,58 @@ app.get('/players', function(req, res, next) {
 });
 
 /**
+ * Route handler for POST to /players => returns count of players at the court
+ */
+app.post('/players', async function(req, res, next) {
+  const player = req.body;
+  console.log(player);
+  await db.collection('players').insertOne(player);
+  return res.json({ status: 'success', player });
+});
+
+/**
+ * Route handler for POST to /players => removes players
+ */
+app.delete('/players', async function(req, res, next) {
+  const playerEmail = req.body.email;
+  console.log(playerEmail);
+  await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
+  return res.json({ status: 'removed', playerEmail });
+});
+
+/**
  * Route handler for GET to /players/count => returns count of players at the court
  */
 app.get('/players/count', async function(req, res, next) {
   let playerCount = await db
     .collection('players') // query players
     .count(); //find count
-  console.log(playerCount);
   return res.json({ count: playerCount });
 });
+
+/**
+ * Route handler for POST to /signup => returns count of players at the court
+ */
+app.get('/players/count', async function(req, res, next) {
+  let playerCount = await db
+    .collection('players') // query players
+    .count(); //find count
+  return res.json({ count: playerCount });
+});
+
+/**
+ * Route handler for POST to /signup => allows a player to signup
+ */
+app.get('/signup', async function(req, res, next) {
+  let user = req.body;
+  const token = jwt.sign(user, secret);
+  return res.json(token);
+});
+
+/**
+ * Route handler for POST to /login => allows a player to login
+ */
+app.get('/login', async function(req, res, next) {});
 
 /** 404 handler */
 
