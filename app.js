@@ -15,7 +15,7 @@ const mongo = new MongoClient('mongodb://localhost:27017', {
 let db;
 
 /**
- * Route handler for GET to /pets
+ * Route handler for GET to /players => return players at court
  */
 app.get('/players', function(req, res, next) {
   db.collection('players') // query players
@@ -28,6 +28,17 @@ app.get('/players', function(req, res, next) {
       // return the JSON of the result array
       return res.json(result);
     });
+});
+
+/**
+ * Route handler for GET to /players/count => returns count of players at the court
+ */
+app.get('/players/count', async function(req, res, next) {
+  let playerCount = await db
+    .collection('players') // query players
+    .count(); //find count
+  console.log(playerCount);
+  return res.json({ count: playerCount });
 });
 
 /** 404 handler */
