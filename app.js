@@ -1,13 +1,14 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
+const playerRoutes = require('./routes/players');
 
 app.use(express.json());
 
 app.use(cors());
 
 //put in deck routes middleware
-// app.use('/cards', cardRoutes);
+app.use('/players', playerRoutes);
 
 /** 404 handler */
 
