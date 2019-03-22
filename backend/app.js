@@ -4,6 +4,7 @@ const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
+const { validateUserSchema } = require('./schema');
 
 app.use(express.json());
 
@@ -35,6 +36,7 @@ app.get('/players', function(req, res, next) {
 /**
  * Route handler for POST to /players => returns count of players at the court
  */
+//change to token
 app.post('/players', async function(req, res, next) {
   const player = req.body;
   const foundPlayer = await db
@@ -89,7 +91,7 @@ app.post('/signup', async function(req, res, next) {
     .findOne({ email: { $eq: userEmail } });
   if (userFound === null) {
     const token = jwt.sign(newUser, secret);
-    await db.collection('users').insertOne(user);
+    await db.collection('users').insertOne(newUser);
     return res.json(token);
   } else {
     const token = jwt.sign(userFound, secret);

@@ -1,0 +1,1 @@
+exports.validateUserSchema = require('./validateUser');
