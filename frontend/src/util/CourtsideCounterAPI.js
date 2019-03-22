@@ -21,7 +21,7 @@ export default class CourtsideCounterAPI {
       let response = await axios({
         method: 'post',
         url: `${BASE_URL}/login`,
-        body: email
+        data: email
       });
       console.log(response);
       return response.data;

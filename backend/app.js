@@ -4,7 +4,7 @@ const cors = require('cors');
 const MongoClient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
-const { validateUserSchema } = require('./schema');
+const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
 const cron = require('node-cron');
 
@@ -73,19 +73,9 @@ app.get('/players/count', async function(req, res, next) {
 });
 
 /**
- * Route handler for get to /players/count => returns count of players at the court
- */
-app.get('/players/count', async function(req, res, next) {
-  let playerCount = await db
-    .collection('players') // query players
-    .count(); //find count
-  return res.json({ count: playerCount });
-});
-
-/**
  * Route handler for POST to /signup => allows a player to signup
  */
-app.post('/signup', validateJSONSchema(validateUserSchema), async function(
+app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   req,
   res,
   next
@@ -98,6 +88,7 @@ app.post('/signup', validateJSONSchema(validateUserSchema), async function(
   if (userFound === null) {
     const token = jwt.sign(newUser, secret);
     await db.collection('users').insertOne(newUser);
+    console.log(token);
     return res.json(token);
   } else {
     const token = jwt.sign(userFound, secret);
@@ -108,13 +99,14 @@ app.post('/signup', validateJSONSchema(validateUserSchema), async function(
 /**
  * Route handler for POST to /login => allows a player to login
  */
-app.post('/login', validateJSONSchema(validateUserSchema), async function(
+app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   req,
   res,
   next
 ) {
+  console.log('hey');
+  console.log(req.body);
   const userEmail = req.body.email;
-  const user = req.body;
   const userFound = await db
     .collection('users')
     .findOne({ email: { $eq: userEmail } });
@@ -123,7 +115,8 @@ app.post('/login', validateJSONSchema(validateUserSchema), async function(
     const err = new Error('User not found');
     next(err);
   } else {
-    const token = jwt.sign(user, secret);
+    const token = jwt.sign(userFound, secret);
+    console.log(token);
     res.json(token);
   }
 });

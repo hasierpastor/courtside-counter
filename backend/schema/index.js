@@ -1,1 +1,2 @@
-exports.validateUserSchema = require('./validateUser');
+exports.validateSignupSchema = require('./validateSignup');
+exports.validateLoginSchema = require('./validateLogin');
