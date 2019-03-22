@@ -5,6 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
 const { validateUserSchema } = require('./schema');
+const { validateJSONSchema } = require('./middleware/validateJSONSchema');
 
 app.use(express.json());
 
@@ -83,7 +84,11 @@ app.get('/players/count', async function(req, res, next) {
 /**
  * Route handler for POST to /signup => allows a player to signup
  */
-app.post('/signup', async function(req, res, next) {
+app.post('/signup', validateJSONSchema(validateUserSchema), async function(
+  req,
+  res,
+  next
+) {
   const userEmail = req.body.email;
   const newUser = req.body;
   const userFound = await db
@@ -102,13 +107,16 @@ app.post('/signup', async function(req, res, next) {
 /**
  * Route handler for POST to /login => allows a player to login
  */
-app.post('/login', async function(req, res, next) {
+app.post('/login', validateJSONSchema(validateUserSchema), async function(
+  req,
+  res,
+  next
+) {
   const userEmail = req.body.email;
   const user = req.body;
   const userFound = await db
     .collection('users')
     .findOne({ email: { $eq: userEmail } });
-  console.log(userFound);
   if (userFound === null) {
     // add error handling later
     const err = new Error('User not found');
