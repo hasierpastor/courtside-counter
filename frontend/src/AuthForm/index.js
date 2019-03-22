@@ -18,7 +18,8 @@ class AuthForm extends Component {
     if (this.props.location.pathname === '/login') {
       console.log('submit login');
     } else {
-      await CourtsideCounterAPI.signup(this.state);
+      let res = await CourtsideCounterAPI.signup(this.state);
+      console.log(res);
       this.setState({ email: '', name: '' });
     }
   }
