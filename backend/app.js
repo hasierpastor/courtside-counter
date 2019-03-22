@@ -5,7 +5,7 @@ const MongoClient = require('mongodb').MongoClient;
 const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
 const { validateUserSchema } = require('./schema');
-const { validateJSONSchema } = require('./middleware/validateJSONSchema');
+const validateJSONSchema = require('./middleware/validateJSONSchema');
 
 app.use(express.json());
 
