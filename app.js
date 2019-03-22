@@ -69,7 +69,7 @@ app.get('/players/count', async function(req, res, next) {
 });
 
 /**
- * Route handler for POST to /signup => returns count of players at the court
+ * Route handler for get to /players/count => returns count of players at the court
  */
 app.get('/players/count', async function(req, res, next) {
   let playerCount = await db
