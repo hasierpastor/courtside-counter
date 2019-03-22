@@ -24,6 +24,7 @@
     "express": "^4.16.4",
     "jsonschema": "^1.2.4",
     "jsonwebtoken": "^8.5.1",
-    "mongodb": "^3.1.13"
+    "mongodb": "^3.1.13",
+    "node-cron": "^2.0.3"
   }
 }

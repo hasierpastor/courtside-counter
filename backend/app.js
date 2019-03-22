@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
 const { validateUserSchema } = require('./schema');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
+const cron = require('node-cron');
 
 app.use(express.json());
 
@@ -125,6 +126,12 @@ app.post('/login', validateJSONSchema(validateUserSchema), async function(
     const token = jwt.sign(user, secret);
     res.json(token);
   }
+});
+
+//Cron Job which clears players from court every 24 hours
+cron.schedule('0 0 */24 * *', () => {
+  console.log('hey');
+  db.collection('players').remove({});
 });
 
 /** 404 handler */
