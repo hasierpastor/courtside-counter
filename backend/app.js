@@ -130,8 +130,8 @@ app.post('/login', validateJSONSchema(validateUserSchema), async function(
 
 //Cron Job which clears players from court every 24 hours
 cron.schedule('0 0 */24 * *', () => {
-  console.log('hey');
   db.collection('players').remove({});
+  console.log('Players cleared');
 });
 
 /** 404 handler */
