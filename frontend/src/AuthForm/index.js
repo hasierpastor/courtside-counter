@@ -16,10 +16,13 @@ class AuthForm extends Component {
   async handleSubmit(e) {
     e.preventDefault();
     if (this.props.location.pathname === '/login') {
-      console.log('submit login');
+      console.log(this.state.email);
+      let token = await CourtsideCounterAPI.login({ email: this.state.email });
+      this.setState({ email: '', name: '' });
+      console.log(token);
     } else {
-      let res = await CourtsideCounterAPI.signup(this.state);
-      console.log(res);
+      let token = await CourtsideCounterAPI.signup(this.state);
+      console.log(token);
       this.setState({ email: '', name: '' });
     }
   }

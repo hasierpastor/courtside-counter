@@ -1,19 +1,30 @@
 const BASE_URL = 'http://localhost:3333';
+const axios = require('axios');
 
 export default class CourtsideCounterAPI {
   static async signup(user) {
     try {
-      console.log(user);
-      let response = await fetch(`${BASE_URL}/signup`, {
+      let response = await axios({
         method: 'post',
-        mode: 'cors',
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(user)
+        url: `${BASE_URL}/signup`,
+        data: user
       });
-      return response.json();
+      return response.data;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  static async login(email) {
+    console.log(email);
+    try {
+      let response = await axios({
+        method: 'post',
+        url: `${BASE_URL}/login`,
+        body: email
+      });
+      console.log(response);
+      return response.data;
     } catch (e) {
       throw e;
     }
