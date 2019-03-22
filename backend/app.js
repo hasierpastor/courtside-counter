@@ -128,9 +128,9 @@ app.post('/login', validateJSONSchema(validateUserSchema), async function(
   }
 });
 
-//Cron Job which clears players from court every 24 hours
-cron.schedule('0 0 */24 * *', () => {
-  db.collection('players').remove({});
+// Cron Job which clears players from court every 24 hours
+cron.schedule('* * */24 * * *', () => {
+  db.collection('players').deleteMany({});
   console.log('Players cleared');
 });
 
