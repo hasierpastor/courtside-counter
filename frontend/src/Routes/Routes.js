@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import Home from '../Home';
 import AuthForm from '../AuthForm/AuthForm';
-import PlayerList from '../PlayerList';
+import PlayerPage from '../PlayerPage';
 import CheckIn from '../CheckIn';
 
 class Routes extends Component {
@@ -15,7 +15,7 @@ class Routes extends Component {
         <Route
           exact
           path="/players"
-          render={props => <PlayerList {...props} />}
+          render={props => <PlayerPage {...props} />}
         />
         <Route exact path="/checkin" render={props => <CheckIn {...props} />} />
         <Redirect to="/" />

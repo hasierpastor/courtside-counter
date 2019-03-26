@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 class Button extends Component {
   render() {
-    return <StyledButton>{this.props.children}</StyledButton>;
+    return <StyledButton onClick={this.props.handleClick ? this.props.handleClick : null}>{this.props.children}</StyledButton>;
   }
 }
 

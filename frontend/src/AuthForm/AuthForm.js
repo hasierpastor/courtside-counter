@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 // import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
-import getUserData from '../util/mockAPI';
+import {getUserData} from '../util/mockAPI';
+import Button from '../Button';
 
 class AuthForm extends Component {
   constructor(props) {
@@ -35,7 +36,7 @@ class AuthForm extends Component {
         console.log(token);
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
-        this.props.history.push('/playerlist');
+        this.props.history.push('/players');
       } else {
         // let token = await CourtsideCounterAPI.signup({
         //   email: this.state.email,
@@ -45,7 +46,7 @@ class AuthForm extends Component {
         console.log(token);
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
-        this.props.history.push('/playerlist');
+        this.props.history.push('/players');
       }
     } catch (err) {
       this.setState({ errors: err });
@@ -83,7 +84,7 @@ class AuthForm extends Component {
             value={this.state.email}
           />
           {this.state.formType === 'signup' ? nameInput : null}
-          <button />
+          <Button>Submit</Button>
         </form>
       </>
     );

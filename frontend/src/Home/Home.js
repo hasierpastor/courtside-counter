@@ -18,8 +18,8 @@ class Home extends Component {
   render() {
     return (
       <>
-        <button onClick={this.handleLoginClick}>Login</button>
-        <button onClick={this.handleSignupClick}>Sign Up</button>
+        <Button handleClick={this.handleLoginClick}>Login</Button>
+        <Button handleClick={this.handleSignupClick}>Sign Up</Button>
       </>
     );
   }
