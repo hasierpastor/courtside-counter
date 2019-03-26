@@ -15,15 +15,14 @@ export default class CourtsideCounterAPI {
     }
   }
 
+
   static async login(email) {
-    console.log(email);
     try {
       let response = await axios({
         method: 'post',
         url: `${BASE_URL}/login`,
         data: email
       });
-      console.log(response);
       return response.data;
     } catch (e) {
       throw e;

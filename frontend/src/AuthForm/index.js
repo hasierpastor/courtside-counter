@@ -15,12 +15,19 @@ class AuthForm extends Component {
 
   async handleSubmit(e) {
     e.preventDefault();
-    if (this.props.location.pathname === '/login') {
-      let token = await CourtsideCounterAPI.login({ email: this.state.email });
-      this.setState({ email: '', name: '' });
-    } else {
-      let token = await CourtsideCounterAPI.signup(this.state);
-      this.setState({ email: '', name: '' });
+    try {
+
+      if (this.props.location.pathname === '/login') {
+        let token = await CourtsideCounterAPI.login({ email: this.state.email });
+        localStorage.setItem('token', token);
+        this.setState({ email: '', name: '' });
+      } else {
+        let token = await CourtsideCounterAPI.signup(this.state);
+        localStorage.setItem('token', token);
+        this.setState({ email: '', name: '' });
+      }
+    } catch (err) {
+      this.setState({errors: err});
     }
   }
 
