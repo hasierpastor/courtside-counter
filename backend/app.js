@@ -59,19 +59,25 @@ app.post('/players', async function(req, res, next) {
  * Route handler for POST to /players => removes players
  */
 app.delete('/players', async function(req, res, next) {
-  const playerEmail = req.body.email;
-  await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
-  return res.json({ status: 'removed', playerEmail });
+  try {
+    const playerEmail = req.body.email;
+    await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
+    return res.json({ status: 'removed', playerEmail });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * Route handler for GET to /players/count => returns count of players at the court
  */
 app.get('/players/count', async function(req, res, next) {
-  let playerCount = await db
-    .collection('players') // query players
-    .count(); //find count
-  return res.json({ count: playerCount });
+  try {
+    let playerCount = await db.collection('players').count();
+    return res.json({ count: playerCount });
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
@@ -82,18 +88,22 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   res,
   next
 ) {
-  const userEmail = req.body.email;
-  const newUser = req.body;
-  const userFound = await db
-    .collection('users')
-    .findOne({ email: { $eq: userEmail } });
-  if (userFound === null) {
-    const token = jwt.sign(newUser, secret);
-    await db.collection('users').insertOne(newUser);
-    return res.json(token);
-  } else {
-    const token = jwt.sign(userFound, secret);
-    return res.json(token);
+  try {
+    const userEmail = req.body.email;
+    const newUser = req.body;
+    const userFound = await db
+      .collection('users')
+      .findOne({ email: { $eq: userEmail } });
+    if (userFound === null) {
+      const token = jwt.sign(newUser, secret);
+      await db.collection('users').insertOne(newUser);
+      return res.json(token);
+    } else {
+      const token = jwt.sign(userFound, secret);
+      return res.json(token);
+    }
+  } catch (err) {
+    next(err);
   }
 });
 
