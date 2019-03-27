@@ -11,7 +11,7 @@
       "type": "string",
       "title": "The Email Schema",
       "default": "",
-      "examples": ["juan@gmail.com"],
+      "examples": ["test@gmail.com"],
       "pattern": "^(.*)$"
     }
   }

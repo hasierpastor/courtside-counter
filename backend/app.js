@@ -8,10 +8,11 @@ const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
 const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
 const cron = require('node-cron');
+const morgan = require('morgan');
 
 app.use(express.json());
-
 app.use(cors());
+app.use(morgan('tiny'));
 
 // set up a connection to the server running on localhost (mongod)
 const mongo = new MongoClient('mongodb://localhost:27017', {
@@ -20,9 +21,12 @@ const mongo = new MongoClient('mongodb://localhost:27017', {
 
 let db;
 
+/***************** ROUTES ***************************/
+
 /**
- * Route handler for GET to /players => return players at court
+ * Route handler for GET to /players => return players at the court (array)
  */
+
 app.get('/players', async function(req, res, next) {
   try {
     let result = await db
@@ -36,12 +40,13 @@ app.get('/players', async function(req, res, next) {
 });
 
 /**
- * Route handler for POST to /players =>  check into the court, if not checked in then return player and success message. Otherwise return PlayerCheckedIn error
+ * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
+ * If player already checked in return PlayerCheckedIn error
  */
+
 //change to token?
 app.post('/players', async function(req, res, next) {
   const player = req.body;
-  console.log(player);
   const foundPlayer = await db
     .collection('players')
     .findOne({ email: { $eq: player.email } });
@@ -58,8 +63,9 @@ app.post('/players', async function(req, res, next) {
 });
 
 /**
- * Route handler for DELETE to /players => removes players
+ * Route handler for DELETE to /players => removes players from court
  */
+
 app.delete('/players', async function(req, res, next) {
   try {
     const playerEmail = req.body.email;
@@ -71,8 +77,9 @@ app.delete('/players', async function(req, res, next) {
 });
 
 /**
- * Route handler for GET to /players/count => returns count of players at the court
+ * Route handler for GET to /players/count => returns number of players at the court
  */
+
 app.get('/players/count', async function(req, res, next) {
   try {
     let playerCount = await db.collection('players').count();
@@ -83,8 +90,11 @@ app.get('/players/count', async function(req, res, next) {
 });
 
 /**
- * Route handler for POST to /signup => allows a player to signup
+ * Route handler for POST to /signup => allows a player to signup to Courtside Counter
+ * If player not signed up return JWT and sign up (add to users collection).
+ * If player already signed up return JWT
  */
+
 app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   req,
   res,
@@ -110,8 +120,10 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
 });
 
 /**
- * Route handler for POST to /login => allows a player to login
+ * Route handler for POST to /login => allows a player to login to Courtside Counter
+ * If player not signed up return an error, otherwise login player and return JWT
  */
+
 app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   req,
   res,
@@ -130,13 +142,15 @@ app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   }
 });
 
+/*************** CRON JON  ******************************/
+
 // Cron Job which clears players from court every 24 hours
 cron.schedule('* * */24 * * *', () => {
   db.collection('players').deleteMany({});
   console.log('Players cleared');
 });
 
-/** general error handler */
+/************ GENERAL ERROR HANDLER *******************************/
 
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
@@ -146,9 +160,8 @@ app.use(function(err, req, res, next) {
   });
 });
 
-/**
- * Database connection and server set-up
- */
+/************* DATABASE CONNECTION AND SERVER SET UP **********************/
+
 mongo.connect(function(error) {
   // a standard Node.js "error-first" callback
   if (error) {
@@ -157,12 +170,10 @@ mongo.connect(function(error) {
     process.exit(1);
   }
 
-  // if we reach this line, we've made it
   console.log('Successfully connected to database');
   // set the active database
   db = mongo.db('basketball_db');
 
-  // standard express app.listen
   app.listen(3333, function() {
     console.log('Courtside Counter API Server listening on port 3333.');
   });

@@ -1,3 +1,5 @@
+//CUSTOM ERROR CLASSES
+
 //ApplicationError.js => ApplicationError that extends the native Error class. ApplicationError is the root error from which our custom errors will extend. It provides the structure for what we want our end-state errors to look like.
 class ApplicationError extends Error {
   constructor(message, status) {
@@ -19,8 +21,8 @@ class UserNotFoundError extends ApplicationError {
     super(message || 'User Not Found. Please Sign Up', 404);
   }
 }
-module.exports = UserNotFoundError;
 
+//Custom class for when player is already checked into the court
 class PlayerCheckedInError extends ApplicationError {
   constructor(message) {
     //not sure about this status code => should it be success or 400 (bad request)
