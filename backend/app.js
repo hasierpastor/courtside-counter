@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
 const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
-const { UserNotFoundError, PlayerCheckInError } = require('errors');
+const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
 const cron = require('node-cron');
 
 app.use(express.json());
@@ -26,8 +26,9 @@ let db;
 app.get('/players', async function(req, res, next) {
   try {
     let result = await db
-      .collection('players') // query players
-      .find(); // find all, view result as an array
+      .collection('players')
+      .find()
+      .toArray();
     return res.json(result);
   } catch (err) {
     next(err);
@@ -35,28 +36,29 @@ app.get('/players', async function(req, res, next) {
 });
 
 /**
- * Route handler for POST to /players => returns count of players at the court
+ * Route handler for POST to /players =>  check into the court, if not checked in then return player and success message. Otherwise return PlayerCheckedIn error
  */
 //change to token?
 app.post('/players', async function(req, res, next) {
   const player = req.body;
+  console.log(player);
   const foundPlayer = await db
     .collection('players')
     .findOne({ email: { $eq: player.email } });
   if (foundPlayer === null) {
     await db.collection('players').insertOne(player);
     return res.json({
-      status: 'You have successfully checked into the court!',
+      message: 'You have successfully checked into the court!',
       player
     });
   } else {
-    let err = new PlayerCheckInError();
+    let err = new PlayerCheckedInError();
     next(err);
   }
 });
 
 /**
- * Route handler for POST to /players => removes players
+ * Route handler for DELETE to /players => removes players
  */
 app.delete('/players', async function(req, res, next) {
   try {
@@ -134,24 +136,13 @@ cron.schedule('* * */24 * * *', () => {
   console.log('Players cleared');
 });
 
-/** 404 handler */
-
-app.use(function(req, res, next) {
-  const err = new Error('Not Found');
-  err.status = 404;
-
-  // pass the error to the next piece of middleware
-  return next(err);
-});
-
 /** general error handler */
 
 app.use(function(err, req, res, next) {
   res.status(err.status || 500);
 
   return res.json({
-    error: err,
-    message: err.message
+    error: err
   });
 });
 
