@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 // import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
-import {getUserData} from '../util/mockAPI';
+import { getUserData } from '../util/mockAPI';
 import Button from '../Button';
+import { Redirect } from 'react-router-dom';
 
 class AuthForm extends Component {
   constructor(props) {
@@ -43,7 +44,6 @@ class AuthForm extends Component {
         //   name: this.state.name,
         // });
         let token = await getUserData();
-        debugger;
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
         this.props.history.push('/players');
@@ -58,6 +58,7 @@ class AuthForm extends Component {
   }
 
   render() {
+    if (this.props.currUser) return <Redirect to="/players" />;
     const nameInput = (
       <>
         <label htmlFor="name">Name: </label>

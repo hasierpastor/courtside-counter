@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Button from '../Button';
+import { Redirect } from 'react-router-dom';
 
 class Home extends Component {
   constructor(props) {
@@ -16,6 +17,7 @@ class Home extends Component {
     this.props.history.push('/signup');
   }
   render() {
+    if (this.props.currUser) return <Redirect to="/players" />;
     return (
       <>
         <Button handleClick={this.handleLoginClick}>Login</Button>
