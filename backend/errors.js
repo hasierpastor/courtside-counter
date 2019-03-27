@@ -1,6 +1,7 @@
-//CUSTOM ERROR CLASSES
+/************* CUSTOM ERROR CLASSES ********************/
 
-//ApplicationError.js => ApplicationError that extends the native Error class. ApplicationError is the root error from which our custom errors will extend. It provides the structure for what we want our end-state errors to look like.
+//ApplicationError.js => ApplicationError that extends the native Error class.
+//ApplicationError is the root error from which our custom errors will extend. It provides the structure for what we want our end-state errors to look like.
 class ApplicationError extends Error {
   constructor(message, status) {
     super();
