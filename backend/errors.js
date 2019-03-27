@@ -16,7 +16,16 @@ class ApplicationError extends Error {
 //Custom class for error when user is not found
 class UserNotFoundError extends ApplicationError {
   constructor(message) {
-    super(message || 'No User found.', 404);
+    super(message || 'User Not Found. Please Sign Up', 404);
   }
 }
 module.exports = UserNotFoundError;
+
+class PlayerCheckedInError extends ApplicationError {
+  constructor(message) {
+    //not sure about this status code => should it be success or 400 (bad request)
+    super(message || 'You are already checked in', 200);
+  }
+}
+
+module.exports = { UserNotFoundError, PlayerCheckedInError };

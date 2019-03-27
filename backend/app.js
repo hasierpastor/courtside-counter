@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const { secret } = require('./secret');
 const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
+const { UserNotFoundError, PlayerCheckInError } = require('errors');
 const cron = require('node-cron');
 
 app.use(express.json());
@@ -22,23 +23,21 @@ let db;
 /**
  * Route handler for GET to /players => return players at court
  */
-app.get('/players', function(req, res, next) {
-  db.collection('players') // query players
-    .find() // find all, view result as an array
-    .toArray(function(error, result) {
-      // a standard Node.js "error-first" callback
-      if (error) {
-        return res.json({ error });
-      }
-      // return the JSON of the result array
-      return res.json(result);
-    });
+app.get('/players', async function(req, res, next) {
+  try {
+    let result = await db
+      .collection('players') // query players
+      .find(); // find all, view result as an array
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
 });
 
 /**
  * Route handler for POST to /players => returns count of players at the court
  */
-//change to token
+//change to token?
 app.post('/players', async function(req, res, next) {
   const player = req.body;
   const foundPlayer = await db
@@ -46,9 +45,13 @@ app.post('/players', async function(req, res, next) {
     .findOne({ email: { $eq: player.email } });
   if (foundPlayer === null) {
     await db.collection('players').insertOne(player);
-    return res.json({ status: 'success', player });
+    return res.json({
+      status: 'You have successfully checked into the court!',
+      player
+    });
   } else {
-    return res.json({ message: 'player already checked in' });
+    let err = new PlayerCheckInError();
+    next(err);
   }
 });
 
@@ -57,7 +60,6 @@ app.post('/players', async function(req, res, next) {
  */
 app.delete('/players', async function(req, res, next) {
   const playerEmail = req.body.email;
-  console.log(playerEmail);
   await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
   return res.json({ status: 'removed', playerEmail });
 });
@@ -88,7 +90,6 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   if (userFound === null) {
     const token = jwt.sign(newUser, secret);
     await db.collection('users').insertOne(newUser);
-    console.log(token);
     return res.json(token);
   } else {
     const token = jwt.sign(userFound, secret);
@@ -104,19 +105,15 @@ app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   res,
   next
 ) {
-  console.log('hey');
-  console.log(req.body);
   const userEmail = req.body.email;
   const userFound = await db
     .collection('users')
     .findOne({ email: { $eq: userEmail } });
   if (userFound === null) {
-    // add error handling later
-    const err = new Error('User not found');
+    let err = new UserNotFoundError();
     next(err);
   } else {
     const token = jwt.sign(userFound, secret);
-    console.log(token);
     res.json(token);
   }
 });
