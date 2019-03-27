@@ -23,7 +23,6 @@ export default class CourtsideCounterAPI {
         url: `${BASE_URL}/login`,
         data: email
       });
-      console.log(response);
       return response.data;
     } catch (e) {
       throw e;
