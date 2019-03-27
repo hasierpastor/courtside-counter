@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import styled from 'styled-components';
 // import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
 import { getUserData } from '../util/mockAPI';
 import Button from '../Button';
