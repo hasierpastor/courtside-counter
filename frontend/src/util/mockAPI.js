@@ -1,11 +1,12 @@
 import jwt from 'jsonwebtoken';
+import secret from './secret';
 
 const user = {
   email: 'silas@silas.com',
   name: 'silas burger'
 };
 
-const token = jwt.sign(user, 'sssshhhhhhhhh');
+const token = jwt.sign(user, secret);
 
 const players = [
   {

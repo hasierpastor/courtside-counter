@@ -33,7 +33,7 @@ class AuthForm extends Component {
         //   email: this.state.email
         // });
         let token = await getUserData();
-        console.log(token);
+        debugger;
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
         this.props.history.push('/players');
@@ -43,7 +43,7 @@ class AuthForm extends Component {
         //   name: this.state.name,
         // });
         let token = await getUserData();
-        console.log(token);
+        debugger;
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
         this.props.history.push('/players');
