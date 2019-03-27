@@ -1,3 +1,5 @@
+'use strict';
+
 const express = require('express');
 const app = express();
 const cors = require('cors');
@@ -19,7 +21,7 @@ const mongo = new MongoClient('mongodb://localhost:27017', {
   useNewUrlParser: true
 });
 
-let db;
+var db;
 
 /***************** ROUTES ***************************/
 
@@ -46,8 +48,8 @@ app.get('/players', async function(req, res, next) {
 
 //change to token?
 app.post('/players', async function(req, res, next) {
-  const player = req.body;
-  const foundPlayer = await db
+  let player = req.body;
+  let foundPlayer = await db
     .collection('players')
     .findOne({ email: { $eq: player.email } });
   if (foundPlayer === null) {
@@ -68,7 +70,7 @@ app.post('/players', async function(req, res, next) {
 
 app.delete('/players', async function(req, res, next) {
   try {
-    const playerEmail = req.body.email;
+    let playerEmail = req.body.email;
     await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
     return res.json({ status: 'removed', playerEmail });
   } catch (err) {
@@ -101,17 +103,17 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   next
 ) {
   try {
-    const userEmail = req.body.email;
-    const newUser = req.body;
-    const userFound = await db
+    let userEmail = req.body.email;
+    let newUser = req.body;
+    let userFound = await db
       .collection('users')
       .findOne({ email: { $eq: userEmail } });
     if (userFound === null) {
-      const token = jwt.sign(newUser, secret);
+      let token = jwt.sign(newUser, secret);
       await db.collection('users').insertOne(newUser);
       return res.json(token);
     } else {
-      const token = jwt.sign(userFound, secret);
+      let token = jwt.sign(userFound, secret);
       return res.json(token);
     }
   } catch (err) {
@@ -129,15 +131,15 @@ app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   res,
   next
 ) {
-  const userEmail = req.body.email;
-  const userFound = await db
+  let userEmail = req.body.email;
+  let userFound = await db
     .collection('users')
     .findOne({ email: { $eq: userEmail } });
   if (userFound === null) {
     let err = new UserNotFoundError();
     next(err);
   } else {
-    const token = jwt.sign(userFound, secret);
+    let token = jwt.sign(userFound, secret);
     res.json(token);
   }
 });
