@@ -110,14 +110,11 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
     // console.log(req.body);
     let userEmail = req.body.email;
     let newUser = req.body;
-    console.log(newUser);
     let userFound = await db
       .collection('users')
       .findOne({ email: { $eq: userEmail } });
     if (userFound === null) {
-      console.log('hey');
       let token = jwt.sign(newUser, SECRET);
-      console.log(token);
       await db.collection('users').insertOne(newUser);
       return res.json(token);
     } else {

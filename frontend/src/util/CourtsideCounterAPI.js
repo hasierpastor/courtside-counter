@@ -36,7 +36,6 @@ export default class CourtsideCounterAPI {
         url: `${BASE_URL}/players`,
         params: {_token}
       });
-      console.log(response);
       return response.data;
     } catch (e) {
       throw e;
@@ -50,7 +49,6 @@ export default class CourtsideCounterAPI {
         url: `${BASE_URL}/players`, 
         data: token
       });
-      console.log(response);
       return response.data;
     } catch (e) {
       throw e;
@@ -63,7 +61,6 @@ export default class CourtsideCounterAPI {
         url: `${BASE_URL}/players`, 
         data: token
       });
-      console.log(response);
       return response.data;
     } catch (e) {
       throw e;

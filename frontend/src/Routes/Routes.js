@@ -7,7 +7,6 @@ import CheckIn from '../CheckIn';
 
 class Routes extends Component {
   render() {
-    console.log('routes:', this.props);
     return (
       <Switch>
         <Route

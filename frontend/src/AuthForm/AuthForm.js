@@ -28,9 +28,7 @@ class AuthForm extends Component {
   async handleSubmit(e) {
     e.preventDefault();
     try {
-      console.log(this.props);
       if (this.props.location.pathname === '/login') {
-        console.log('asdf');
         await this.props.doLogin(this.state.email);
         this.props.history.push('/players');
       } else {

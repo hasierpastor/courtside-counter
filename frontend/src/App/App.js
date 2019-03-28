@@ -16,7 +16,6 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    console.log('app cDM');
     const token = localStorage.getItem('token');
     if (token) {
       const user = await jwt.verify(token, SECRET);

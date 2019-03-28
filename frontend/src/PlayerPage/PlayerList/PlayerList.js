@@ -12,7 +12,6 @@ class PlayerList extends Component {
   }
 
   async componentDidMount() {
-    console.log('PL cDM')
     try {
       let currentUser = this.state.currentUser === null ? this.props.currUser : this.state.currentUser
       const players = await CourtsideCounterApi.getPlayers(
@@ -25,7 +24,6 @@ class PlayerList extends Component {
   }
 
   render() {
-    console.log('playerlist render');
     const players = this.state.players.map(player => (
       <div key={player.id}>{player.name}</div>
     ));
