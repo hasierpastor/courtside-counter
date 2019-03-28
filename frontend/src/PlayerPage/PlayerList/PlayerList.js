@@ -7,17 +7,15 @@ class PlayerList extends Component {
     super(props);
     this.state = {
       players: [],
-      currentUser: null
     };
   }
 
   async componentDidMount() {
     try {
-      let currentUser = this.state.currentUser === null ? this.props.currUser : this.state.currentUser
       const players = await CourtsideCounterApi.getPlayers(
-        currentUser._token 
+        this.props.currUser._token 
       );
-      this.setState({ players, currentUser });
+      this.setState({ players});
     } catch (err) {
       console.log(err);
     }
@@ -25,7 +23,7 @@ class PlayerList extends Component {
 
   render() {
     const players = this.state.players.map(player => (
-      <div key={player.id}>{player.name}</div>
+      <div key={player._id}>{player.name}</div>
     ));
     return <div>{players}</div>;
   }
