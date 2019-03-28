@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import { getPlayerData } from '../../util/mockAPI';
+import CourtsideCounterApi from '../../util/CourtsideCounterAPI';
+// import { getPlayerData } from '../../util/mockAPI';
 
 class PlayerList extends Component {
   constructor(props) {
@@ -11,7 +12,7 @@ class PlayerList extends Component {
 
   async componentDidMount() {
     try {
-      const players = await getPlayerData();
+      const players = await CourtsideCounterApi.getPlayers();
       this.setState({ players });
     } catch (err) {
       console.err(err);

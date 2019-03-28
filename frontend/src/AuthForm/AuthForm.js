@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-// import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
-import { getUserData } from '../util/mockAPI';
+import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
+// import { getUserData } from '../util/mockAPI';
 import Button from '../Button';
 import { Redirect } from 'react-router-dom';
 
@@ -29,20 +29,19 @@ class AuthForm extends Component {
     e.preventDefault();
     try {
       if (this.props.location.pathname === '/login') {
-        // let token = await CourtsideCounterAPI.login({
-        //   email: this.state.email
-        // });
-        let token = await getUserData();
-        debugger;
+        let token = await CourtsideCounterAPI.login({
+          email: this.state.email
+        });
+        // let token = await getUserData();
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
         this.props.history.push('/players');
       } else {
-        // let token = await CourtsideCounterAPI.signup({
-        //   email: this.state.email,
-        //   name: this.state.name,
-        // });
-        let token = await getUserData();
+        let token = await CourtsideCounterAPI.signup({
+          email: this.state.email,
+          name: this.state.name,
+        });
+        // let token = await getUserData();
         localStorage.setItem('token', token);
         this.setState({ email: '', name: '' });
         this.props.history.push('/players');
