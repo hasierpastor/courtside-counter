@@ -30,7 +30,7 @@ var db;
  * Route handler for GET to /players => return players at the court (array)
  */
 
-app.get('/players', async function(req, res, next) {
+app.get('/players', authenticateUser, async function(req, res, next) {
   try {
     let result = await db
       .collection('players')
@@ -69,11 +69,14 @@ app.post('/players', authenticateUser, async function(req, res, next) {
  * Route handler for DELETE to /players => removes players from court
  */
 
-app.delete('/players', async function(req, res, next) {
+app.delete('/players', authenticateUser, async function(req, res, next) {
   try {
     let playerEmail = req.body.email;
     await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
-    return res.json({ status: 'removed', playerEmail });
+    return res.json({
+      status: 'You have succesfully checked out of the court!',
+      playerEmail
+    });
   } catch (err) {
     next(err);
   }
