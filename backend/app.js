@@ -144,7 +144,7 @@ app.post('/login', validateJSONSchema(validateLoginSchema), async function(
   }
 });
 
-/*************** CRON JON  ******************************/
+/*************** CRON JOB  ******************************/
 
 // Cron Job which clears players from court every 24 hours
 cron.schedule('* * */24 * * *', () => {

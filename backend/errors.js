@@ -19,7 +19,7 @@ class ApplicationError extends Error {
 //Custom class for error when user is not found
 class UserNotFoundError extends ApplicationError {
   constructor(message) {
-    super(message || 'User Not Found. Please Sign Up', 404);
+    super(message || 'User Not Found. Please Sign Up', 400);
   }
 }
 
