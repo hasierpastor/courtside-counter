@@ -1,7 +1,7 @@
 /** Convenience middleware to handle common auth cases in routes. */
 
 const jwt = require('jsonwebtoken');
-const { SECRET } = require('../secret');
+const { SECRET } = require('../../secret');
 
 /** Middleware to use when they must provide a valid token.
  *
