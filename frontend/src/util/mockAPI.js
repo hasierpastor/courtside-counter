@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import SECRET from '../../../secret';
+import {SECRET} from '../secret';
 
 const user = {
   email: 'silas@silas.com',

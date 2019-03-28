@@ -12,7 +12,7 @@ class Routes extends Component {
         <Route
           exact
           path="/"
-          render={props => <Home {...this.props} {...props} />}
+          render={props => <Home currUser={this.props.currUser} {...props} />}
         />
         <Route
           exact
@@ -27,12 +27,7 @@ class Routes extends Component {
         <Route
           exact
           path="/players"
-          render={props => <PlayerPage {...this.props} {...props} />}
-        />
-        <Route
-          exact
-          path="/checkin"
-          render={props => <CheckIn {...this.props} {...props} />}
+          render={props => <PlayerPage {...props} currUser={this.props.currUser} />}
         />
         <Redirect to="/" />
       </Switch>

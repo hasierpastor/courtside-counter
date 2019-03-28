@@ -12,7 +12,8 @@ class PlayerList extends Component {
 
   async componentDidMount() {
     try {
-      const players = await CourtsideCounterApi.getPlayers();
+      console.log(this.props);
+      const players = await CourtsideCounterApi.getPlayers(this.props.currUser._token);
       this.setState({ players });
     } catch (err) {
       console.log(err);

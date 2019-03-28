@@ -28,22 +28,13 @@ class AuthForm extends Component {
   async handleSubmit(e) {
     e.preventDefault();
     try {
+      console.log(this.props);
       if (this.props.location.pathname === '/login') {
-        let token = await CourtsideCounterAPI.login({
-          email: this.state.email
-        });
-        // let token = await getUserData();
-        localStorage.setItem('token', token);
-        this.setState({ email: '', name: '' });
+        console.log('asdf');
+        await this.props.doLogin(this.state.email);
         this.props.history.push('/players');
       } else {
-        let token = await CourtsideCounterAPI.signup({
-          email: this.state.email,
-          name: this.state.name,
-        });
-        // let token = await getUserData();
-        localStorage.setItem('token', token);
-        this.setState({ email: '', name: '' });
+        await this.props.doSignup(this.state.name, this.state.email);
         this.props.history.push('/players');
       }
     } catch (err) {

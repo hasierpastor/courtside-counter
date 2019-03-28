@@ -29,12 +29,12 @@ export default class CourtsideCounterAPI {
     }
   }
 
-  static async getPlayers(token) {
+  static async getPlayers(_token) {
     try {
       let response = await axios({
         method: 'get',
         url: `${BASE_URL}/players`,
-        data: token
+        params: {_token}
       });
       console.log(response);
       return response.data;
