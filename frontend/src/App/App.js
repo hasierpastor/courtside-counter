@@ -53,7 +53,9 @@ class App extends Component {
   // }
 
   render() {
-    console.log('render');
+    if (this.state.isLoading) {
+      return <div>Loading...</div>;
+    }
     return (
       <Routes
         currUser={this.state.currUser}
