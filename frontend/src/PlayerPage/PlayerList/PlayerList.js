@@ -15,7 +15,7 @@ class PlayerList extends Component {
       const players = await CourtsideCounterApi.getPlayers();
       this.setState({ players });
     } catch (err) {
-      console.err(err);
+      console.log(err);
     }
   }
 

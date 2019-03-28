@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import Routes from '../Routes';
-import secret from '../util/secret';
+import SECRET from '../../../secret';
 import jwt from 'jsonwebtoken';
 
 class App extends Component {
@@ -14,7 +14,7 @@ class App extends Component {
   async componentDidMount() {
     const token = localStorage.getItem('token');
     if (token) {
-      const user = await jwt.verify(token, secret);
+      const user = await jwt.verify(token, SECRET);
       await this.setState({ currUser: user });
     }
   }
