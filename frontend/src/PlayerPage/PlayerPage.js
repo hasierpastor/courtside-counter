@@ -7,13 +7,13 @@ class PlayerPage extends Component {
     super(props);
     this.state = {
       lat: null,
-      long: null, 
-      locationError: null,
+      long: null,
+      locationError: null
     };
     this.handleCheckin = this.handleCheckin.bind(this);
   }
 
-  //function that gets the location and accepts a callback
+  //function that gets the location and return a promise
   getLocationAsync() {
     if (navigator.geolocation) {
       return new Promise(function(resolve, reject) {
@@ -21,7 +21,8 @@ class PlayerPage extends Component {
           function(position) {
             resolve({
               long: position.coords.longitude,
-              lat: position.coords.latitude
+              lat: position.coords.latitude,
+              timestamp: position.timestamp,
             });
           },
           function(PostionError) {
@@ -37,12 +38,12 @@ class PlayerPage extends Component {
 
   async handleCheckin() {
     try {
-      const {lat, long} = await this.getLocationAsync();
-      console.log(lat, long);
-      this.setState({lat, long});
+      const { lat, long, timestamp } = await this.getLocationAsync();
+      console.log(lat, long, timestamp);
+      // now that we have lat long, we can 
     } catch (e) {
       console.err(e);
-      this.setState({locationError: e});
+      this.setState({ locationError: e });
     }
   }
 
@@ -57,3 +58,8 @@ class PlayerPage extends Component {
 }
 
 export default PlayerPage;
+
+// 37.883581, -122.269655
+// 37.883625, -122.269153
+// 37.883344, -122.269144
+// 37.883284, -122.269609
