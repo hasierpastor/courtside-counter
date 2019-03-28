@@ -50,7 +50,7 @@ class PlayerPage extends Component {
   render() {
     return (
       <>
-        <PlayerList {...this.props}/>
+        <PlayerList currUser={this.props.currUser}/>
         <Button handleClick={this.handleCheckin}>Check In</Button>
       </>
     );
