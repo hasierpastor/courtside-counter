@@ -1,19 +1,20 @@
 import React, { Component } from 'react';
 import Button from '../Button';
 import PlayerList from './PlayerList';
+import CourtsideAPI from '../util/CourtsideCounterAPI';
 
 class PlayerPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       isCheckedIn: false,
-      isOTW: false,
       lat: null,
       long: null,
       timestamp: null,
       locationError: null
     };
     this.handleCheckin = this.handleCheckin.bind(this);
+    this.handleCheckout = this.handleCheckout.bind(this);
   }
 
   //function that gets the location and return a promise
@@ -25,7 +26,7 @@ class PlayerPage extends Component {
             resolve({
               long: position.coords.longitude,
               lat: position.coords.latitude,
-              timestamp: position.timestamp,
+              timestamp: position.timestamp
             });
           },
           function(PostionError) {
@@ -43,21 +44,49 @@ class PlayerPage extends Component {
     try {
       const { lat, long, timestamp } = await this.getLocationAsync();
       this.setState({ lat, long, timestamp });
-      //api request to handleCheckin
+      const checkinResponse = this.CourtsideAPI.checkinPlayer(
+        this.currentPlayer,
+        lat,
+        long,
+        timestamp
+      );
       //
     } catch (e) {
       console.err(e);
-      this.setState({ locationError: e });
+      this.setState({ checkinError: e });
+    }
+  }
+  async handleCheckout() {
+    try {
+      const { lat, long, timestamp } = await this.getLocationAsync();
+      await this.CourtsideAPI.checkinPlayer(
+        this.currentPlayer,
+        lat,
+        long,
+        timestamp
+      );
+      this.setState({ lat, long, timestamp, isCheckedIn: true });
+    } catch (e) {
+      console.err(e);
+      this.setState({ checkinError: e });
     }
   }
 
   render() {
-    return (
-      //replace checkin button with checkout and update status button when someone is checked in
-      let statusButtons = {}
+    //replace checkin button with checkout and update status button when someone is checked in
+    let statusButtons = this.state.isCheckedIn ? (
       <>
-        <PlayerList currUser={this.props.currUser}/>
-        <Button handleClick={this.handleCheckin}>Check In</Button>
+        <Button handleClick={this.handleCheckin}>Update Status</Button>
+        <Button handleClick={this.handleCheckout}>Check Out</Button>
+      </>
+    ) : (
+      <Button handleClick={this.handleCheckin}>Check In</Button>
+    );
+
+    return (
+      <>
+        <PlayerList currUser={this.props.currUser} />
+        {statusButtons}
       </>
     );
   }
