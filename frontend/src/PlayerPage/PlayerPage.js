@@ -6,8 +6,11 @@ class PlayerPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      isCheckedIn: false,
+      isOTW: false,
       lat: null,
       long: null,
+      timestamp: null,
       locationError: null
     };
     this.handleCheckin = this.handleCheckin.bind(this);
@@ -39,8 +42,9 @@ class PlayerPage extends Component {
   async handleCheckin() {
     try {
       const { lat, long, timestamp } = await this.getLocationAsync();
-      console.log(lat, long, timestamp);
-      // now that we have lat long, we can 
+      this.setState({ lat, long, timestamp });
+      //api request to handleCheckin
+      //
     } catch (e) {
       console.err(e);
       this.setState({ locationError: e });
@@ -49,6 +53,8 @@ class PlayerPage extends Component {
 
   render() {
     return (
+      //replace checkin button with checkout and update status button when someone is checked in
+      let statusButtons = {}
       <>
         <PlayerList currUser={this.props.currUser}/>
         <Button handleClick={this.handleCheckin}>Check In</Button>

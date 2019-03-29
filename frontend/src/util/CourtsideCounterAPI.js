@@ -42,7 +42,20 @@ export default class CourtsideCounterAPI {
     }
   }
 
-  static async deletePlayer(token) {
+  static async getOTW(_token) {
+    try {
+      let response = await axios({
+        method: 'get',
+        url: `${BASE_URL}/otw`,
+        params: {_token}
+      });
+      return response.data;
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  static async checkoutPlayer(token) {
     try {
       let response = await axios({
         method: 'delete',
@@ -54,7 +67,7 @@ export default class CourtsideCounterAPI {
       throw e;
     }
   }
-  static async addPlayer(token) {
+  static async checkinPlayer(token) {
     try {
       let response = await axios({
         method: 'post',
