@@ -43,14 +43,13 @@ class PlayerPage extends Component {
   async handleCheckin() {
     try {
       const { lat, long, timestamp } = await this.getLocationAsync();
-      this.setState({ lat, long, timestamp });
-      const checkinResponse = this.CourtsideAPI.checkinPlayer(
-        this.currentPlayer,
+      await this.CourtsideAPI.checkinPlayer(
+        this.currentPlayer._token,
         lat,
         long,
         timestamp
       );
-      //
+      this.setState({ lat, long, timestamp, isCheckedIn: true });
     } catch (e) {
       console.err(e);
       this.setState({ checkinError: e });
@@ -58,14 +57,8 @@ class PlayerPage extends Component {
   }
   async handleCheckout() {
     try {
-      const { lat, long, timestamp } = await this.getLocationAsync();
-      await this.CourtsideAPI.checkinPlayer(
-        this.currentPlayer,
-        lat,
-        long,
-        timestamp
-      );
-      this.setState({ lat, long, timestamp, isCheckedIn: true });
+      await this.CourtsideAPI.checkoutPlayer(this.currentPlayer._token);
+      this.setState({ CheckedIn: false });
     } catch (e) {
       console.err(e);
       this.setState({ checkinError: e });
