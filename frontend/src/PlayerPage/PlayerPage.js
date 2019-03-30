@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Button from '../Button';
 import PlayerList from './PlayerList';
 import CourtsideAPI from '../util/CourtsideCounterAPI';
+// import { getOTWData } from '../util/mockAPI';
 
 class PlayerPage extends Component {
   constructor(props) {

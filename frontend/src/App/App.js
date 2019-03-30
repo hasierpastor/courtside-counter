@@ -3,6 +3,7 @@ import Routes from '../Routes';
 import { SECRET } from '../secret';
 import jwt from 'jsonwebtoken';
 import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
+// import { getUserData } from '../util/mockAPI';
 
 class App extends Component {
   constructor(props) {

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import CourtsideCounterApi from '../../util/CourtsideCounterAPI';
-// import { getPlayerData } from '../../util/mockAPI';
+// import { getOTWData } from '../../util/mockAPI';
 
 class OTWList extends Component {
   constructor(props) {
@@ -9,7 +9,7 @@ class OTWList extends Component {
       OTWPlayers: [],
     };
   }
-
+  
   async componentDidMount() {
     try {
       const OTWPlayers = await CourtsideCounterApi.getOTW(

@@ -43,6 +43,22 @@ app.get('/players', authenticateUser, async function(req, res, next) {
 });
 
 /**
+ * Route handler for GET to /players => return players at the court (array)
+ */
+
+app.get('/otw', authenticateUser, async function(req, res, next) { // needs to be added
+  try {
+    let result = await db
+      .collection('otw')
+      .find()
+      .toArray();
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
  * If player already checked in return PlayerCheckedIn error
  */
@@ -83,6 +99,24 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
 });
 
 /**
+ * Route handler for DELETE to /otw => removes players from court
+ */
+
+app.delete('/otw', authenticateUser, async function(req, res, next) {
+  try {
+    let playerEmail = req.body.email;
+    await db.collection('otw').deleteOne({ email: { $eq: playerEmail } });
+    return res.json({
+      status: 'You have succesfully checked out of the court!',
+      playerEmail
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+
+/**
  * Route handler for GET to /players/count => returns number of players at the court
  */
 
@@ -107,7 +141,6 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   next
 ) {
   try {
-    // console.log(req.body);
     let userEmail = req.body.email;
     let newUser = req.body;
     let userFound = await db
