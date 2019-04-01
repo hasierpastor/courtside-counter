@@ -22,7 +22,7 @@ class PlayerPage extends Component {
             resolve({
               long: position.coords.longitude,
               lat: position.coords.latitude,
-              timestamp: position.timestamp,
+              timestamp: position.timestamp
             });
           },
           function(PostionError) {
@@ -40,7 +40,7 @@ class PlayerPage extends Component {
     try {
       const { lat, long, timestamp } = await this.getLocationAsync();
       console.log(lat, long, timestamp);
-      // now that we have lat long, we can 
+      // now that we have lat long, we can
     } catch (e) {
       console.err(e);
       this.setState({ locationError: e });
@@ -50,7 +50,7 @@ class PlayerPage extends Component {
   render() {
     return (
       <>
-        <PlayerList currUser={this.props.currUser}/>
+        <PlayerList currUser={this.props.currUser} />
         <Button handleClick={this.handleCheckin}>Check In</Button>
       </>
     );

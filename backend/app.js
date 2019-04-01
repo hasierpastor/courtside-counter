@@ -17,6 +17,9 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
+//Todo: Add new collection of data  => users on their way vs at the court (mongo)
+//Todo: Add logic to post player => if location in radius of court add to one collection, if not add to the other
+
 // set up a connection to the server running on localhost (mongod)
 const mongo = new MongoClient('mongodb://localhost:27017', {
   useNewUrlParser: true
@@ -46,6 +49,9 @@ app.get('/players', authenticateUser, async function(req, res, next) {
  * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
  * If player already checked in return PlayerCheckedIn error
  */
+
+//add collection for on the way - make a calculation with location parameters
+//if certain location addd to on the way - otherwise add to at the court
 
 app.post('/players', authenticateUser, async function(req, res, next) {
   let player = req.body;
