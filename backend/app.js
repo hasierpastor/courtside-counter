@@ -22,7 +22,9 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-//Todo:
+//Todo: SORT PLAYERS AT COURT/ PLAYERS OTW BY TIMESTAMP
+//Todo: BREAK UP POST PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
+//Todo: MODIFY FRONTEND CHECKIN SO THAT IT WORKS WITH BACKEND POST PLAYERS
 
 // set up a connection to the server running on localhost (mongod)
 const mongo = new MongoClient('mongodb://localhost:27017', {
@@ -99,6 +101,7 @@ app.post('/players', authenticateUser, async function(req, res, next) {
     });
   }
   if (foundPlayer === null && !isAtCourt) {
+    //players on the way also have a distance property (calculated above)
     let newPlayer = { name: req.body.name, email: req.body.email, distance };
     await db.collection('playersotw').insertOne(newPlayer);
     return res.json({
@@ -138,7 +141,7 @@ app.delete('/otw', authenticateUser, async function(req, res, next) {
     let playerEmail = req.body.email;
     await db.collection('otw').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
-      status: 'You have succesfully updated your location!',
+      status: 'You have successfully updated your location!',
       playerEmail
     });
   } catch (err) {
