@@ -22,7 +22,7 @@ app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-//Todo: Add logic to post player => if location in radius of court add to one collection, if not add to the other
+//Todo:
 
 // set up a connection to the server running on localhost (mongod)
 const mongo = new MongoClient('mongodb://localhost:27017', {
@@ -69,8 +69,7 @@ app.get('/otw', authenticateUser, async function(req, res, next) {
  * If player already checked in return PlayerCheckedIn error
  */
 
-//add collection for on the way - make a calculation with location parameters
-//if certain location addd to on the way - otherwise add to at the court
+//BREAK UP TOO MUCH LOGIC?????
 
 app.post('/players', authenticateUser, async function(req, res, next) {
   //distance the player is from the court
@@ -90,11 +89,21 @@ app.post('/players', authenticateUser, async function(req, res, next) {
   let foundPlayer = await db
     .collection('players')
     .findOne({ email: { $eq: player.email } });
-  if (foundPlayer === null) {
+  //A BIT CONFUSED ABOUT TIMESTAMP => SORTING BY TIMESTAMP
+  if (foundPlayer === null && isAtCourt) {
     let newPlayer = { name: req.body.name, email: req.body.email };
     await db.collection('players').insertOne(newPlayer);
     return res.json({
       message: 'You have successfully checked into the court!',
+      newPlayer
+    });
+  }
+  if (foundPlayer === null && !isAtCourt) {
+    let newPlayer = { name: req.body.name, email: req.body.email, distance };
+    await db.collection('playersotw').insertOne(newPlayer);
+    return res.json({
+      //we can display the users that are at the court in this message to motivate people?
+      message: 'You are on the way! Get there quickly to play some ball',
       newPlayer
     });
   } else {
