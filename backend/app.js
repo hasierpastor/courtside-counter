@@ -10,14 +10,18 @@ const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const { authenticateUser } = require('./middleware/authenticateUser');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
 const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
+const { getDistanceInMiles } = require('./helpers/getDistanceInMi');
 const cron = require('node-cron');
 const morgan = require('morgan');
+const latLower = 37.883581;
+const longLower = -122.269655;
+const latUpper = 37.883284;
+const longUpper = -122.269609;
 
 app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-//Todo: Add new collection of data  => users on their way vs at the court (mongo)
 //Todo: Add logic to post player => if location in radius of court add to one collection, if not add to the other
 
 // set up a connection to the server running on localhost (mongod)
@@ -69,6 +73,19 @@ app.get('/otw', authenticateUser, async function(req, res, next) {
 //if certain location addd to on the way - otherwise add to at the court
 
 app.post('/players', authenticateUser, async function(req, res, next) {
+  //distance the player is from the court
+  let distance = getDistanceInMiles(
+    req.body.lat1,
+    req.body.long1,
+    req.body.lat2,
+    req.body.long2
+  );
+  //boolean which is true if plyer at court/false if player on the way => move logic to helpers
+  let isAtCourt =
+    req.body.lat1 < latLower &&
+    req.body.lat2 > latUpper &&
+    req.body.long1 < longLower &&
+    req.body.long2 > longUpper;
   let player = req.body;
   let foundPlayer = await db
     .collection('players')

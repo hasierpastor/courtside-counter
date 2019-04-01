@@ -1,6 +1,6 @@
 //function that takes in a set of latitudes and longitudes and returns the distance in miles
 //used to calculate how far the players (who are on the way) are from the court
-function getDistanceInMi(lat1, lon1, lat2, lon2) {
+function getDistanceInMiles(lat1, lon1, lat2, lon2) {
   var R = 3958.8; // Radius of the earth in km
   var dLat = degTorad(lat2 - lat1); // deg2rad below
   var dLon = degTorad(lon2 - lon1);
@@ -20,4 +20,4 @@ function degTorad(deg) {
   return deg * (Math.PI / 180);
 }
 
-module.exports = { getDistanceInMi };
+module.exports = { getDistanceInMiles };
