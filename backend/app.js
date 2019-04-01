@@ -124,7 +124,7 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
     let playerEmail = req.body.email;
     await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
-      status: 'You have succesfully checked out of the court!',
+      status: 'You have successfully checked out of the court!',
       playerEmail
     });
   } catch (err) {
