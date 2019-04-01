@@ -46,6 +46,21 @@ app.get('/players', authenticateUser, async function(req, res, next) {
 });
 
 /**
+ * Route handler for GET to /otw => return players that are on the way to the court (array)
+ */
+app.get('/otw', authenticateUser, async function(req, res, next) {
+  try {
+    let result = await db
+      .collection('playersotw')
+      .find()
+      .toArray();
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
  * If player already checked in return PlayerCheckedIn error
  */
@@ -81,6 +96,23 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
     await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
       status: 'You have succesfully checked out of the court!',
+      playerEmail
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Route handler for DELETE to /otw => removes players that are on the way to court
+ * /SHOULD THIS BE CALLED WHEN PLAYERS UPDATE LOCATION AND ARE AT THE COURT? => MOVE FROM OTW TO AT THE COURT
+ */
+app.delete('/otw', authenticateUser, async function(req, res, next) {
+  try {
+    let playerEmail = req.body.email;
+    await db.collection('otw').deleteOne({ email: { $eq: playerEmail } });
+    return res.json({
+      status: 'You have succesfully updated your location!',
       playerEmail
     });
   } catch (err) {
