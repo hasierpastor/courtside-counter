@@ -13,10 +13,10 @@ const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
 const { getDistanceInMiles } = require('./helpers/getDistanceInMi');
 const cron = require('node-cron');
 const morgan = require('morgan');
-const latLower = 37.883581;
-const longLower = -122.269655;
-const latUpper = 37.883284;
-const longUpper = -122.269609;
+const LAT_LOWER = 37.883581;
+const LONG_LOWER = -122.269655;
+const LAT_UPPER = 37.883284;
+const LONG_UPPER = -122.269609;
 
 app.use(express.json());
 app.use(cors());
