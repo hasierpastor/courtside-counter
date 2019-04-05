@@ -10,15 +10,21 @@ const { validateSignupSchema, validateLoginSchema } = require('./schema');
 const { authenticateUser } = require('./middleware/authenticateUser');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
 const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
+const { getDistanceInMiles } = require('./helpers/getDistanceInMi');
 const cron = require('node-cron');
 const morgan = require('morgan');
+const latLower = 37.883581;
+const longLower = -122.269655;
+const latUpper = 37.883284;
+const longUpper = -122.269609;
 
 app.use(express.json());
 app.use(cors());
 app.use(morgan('tiny'));
 
-//Todo: Add new collection of data  => users on their way vs at the court (mongo)
-//Todo: Add logic to post player => if location in radius of court add to one collection, if not add to the other
+//Todo: SORT PLAYERS AT COURT/ PLAYERS OTW BY TIMESTAMP
+//Todo: BREAK UP POST PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
+//Todo: MODIFY FRONTEND CHECKIN SO THAT IT WORKS WITH BACKEND POST PLAYERS
 
 // set up a connection to the server running on localhost (mongod)
 const mongo = new MongoClient('mongodb://localhost:27017', {
@@ -46,23 +52,61 @@ app.get('/players', authenticateUser, async function(req, res, next) {
 });
 
 /**
+ * Route handler for GET to /otw => return players that are on the way to the court (array)
+ */
+app.get('/otw', authenticateUser, async function(req, res, next) {
+  try {
+    let result = await db
+      .collection('playersotw')
+      .find()
+      .toArray();
+    return res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
  * If player already checked in return PlayerCheckedIn error
  */
 
-//add collection for on the way - make a calculation with location parameters
-//if certain location addd to on the way - otherwise add to at the court
+//BREAK UP TOO MUCH LOGIC?????
 
 app.post('/players', authenticateUser, async function(req, res, next) {
+  //distance the player is from the court
+  let distance = getDistanceInMiles(
+    req.body.lat1,
+    req.body.long1,
+    req.body.lat2,
+    req.body.long2
+  );
+  //boolean which is true if plyer at court/false if player on the way => move logic to helpers
+  let isAtCourt =
+    req.body.lat1 < latLower &&
+    req.body.lat2 > latUpper &&
+    req.body.long1 < longLower &&
+    req.body.long2 > longUpper;
   let player = req.body;
   let foundPlayer = await db
     .collection('players')
     .findOne({ email: { $eq: player.email } });
-  if (foundPlayer === null) {
+  //A BIT CONFUSED ABOUT TIMESTAMP => SORTING BY TIMESTAMP
+  if (foundPlayer === null && isAtCourt) {
     let newPlayer = { name: req.body.name, email: req.body.email };
     await db.collection('players').insertOne(newPlayer);
     return res.json({
       message: 'You have successfully checked into the court!',
+      newPlayer
+    });
+  }
+  if (foundPlayer === null && !isAtCourt) {
+    //players on the way also have a distance property (calculated above)
+    let newPlayer = { name: req.body.name, email: req.body.email, distance };
+    await db.collection('playersotw').insertOne(newPlayer);
+    return res.json({
+      //we can display the users that are at the court in this message to motivate people?
+      message: 'You are on the way! Get there quickly to play some ball',
       newPlayer
     });
   } else {
@@ -80,7 +124,24 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
     let playerEmail = req.body.email;
     await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
-      status: 'You have succesfully checked out of the court!',
+      status: 'You have successfully checked out of the court!',
+      playerEmail
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Route handler for DELETE to /otw => removes players that are on the way to court
+ * /SHOULD THIS BE CALLED WHEN PLAYERS UPDATE LOCATION AND ARE AT THE COURT? => MOVE FROM OTW TO AT THE COURT
+ */
+app.delete('/otw', authenticateUser, async function(req, res, next) {
+  try {
+    let playerEmail = req.body.email;
+    await db.collection('otw').deleteOne({ email: { $eq: playerEmail } });
+    return res.json({
+      status: 'You have successfully updated your location!',
       playerEmail
     });
   } catch (err) {
