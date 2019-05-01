@@ -3,7 +3,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const MongoClient = require('mongodb').MongoClient;
+const {MongoClient} = require('mongodb');
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../secret');
 const { validateSignupSchema, validateLoginSchema } = require('./schema');
@@ -13,6 +13,7 @@ const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
 const { getDistanceInMiles } = require('./helpers/getDistanceInMi');
 const cron = require('node-cron');
 const morgan = require('morgan');
+const {PORT, DB_NAME, DB_PORT} = require('./config');
 const LAT_LOWER = 37.883581;
 const LONG_LOWER = -122.269655;
 const LAT_UPPER = 37.883284;
@@ -23,15 +24,15 @@ app.use(cors());
 app.use(morgan('tiny'));
 
 //Todo: SORT PLAYERS AT COURT/ PLAYERS OTW BY TIMESTAMP
-//Todo: BREAK UP POST PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
+//Todo: BREAK UP POST /PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
 //Todo: MODIFY FRONTEND CHECKIN SO THAT IT WORKS WITH BACKEND POST PLAYERS
 
 // set up a connection to the server running on localhost (mongod)
-const mongo = new MongoClient('mongodb://localhost:27017', {
+const mongo = new MongoClient(`mongodb://localhost:${DB_PORT}`, {
   useNewUrlParser: true
 });
 
-var db;
+let db;
 
 /***************** ROUTES ***************************/
 
@@ -174,7 +175,6 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   next
 ) {
   try {
-    // console.log(req.body);
     let userEmail = req.body.email;
     let newUser = req.body;
     let userFound = await db
@@ -183,10 +183,10 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
     if (userFound === null) {
       let token = jwt.sign(newUser, SECRET);
       await db.collection('users').insertOne(newUser);
-      return res.json(token);
+      return res.json({_token: token});
     } else {
       let token = jwt.sign(userFound, SECRET);
-      return res.json(token);
+      return res.json({_token: token});
     }
   } catch (err) {
     next(err);
@@ -246,10 +246,10 @@ mongo.connect(function(error) {
 
   console.log('Successfully connected to database');
   // set the active database
-  db = mongo.db('basketball_db');
+  db = mongo.db(DB_NAME);
 
-  app.listen(3333, function() {
-    console.log('Courtside Counter API Server listening on port 3333.');
+  app.listen(PORT, function() {
+    console.log(`Courtside Counter API Server listening on port ${PORT}.`);
   });
 });
 
