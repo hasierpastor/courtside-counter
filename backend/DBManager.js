@@ -1,4 +1,4 @@
-const { MongoClient } = require('mongodb');
+const { db } = require('./db');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 
 // Extend the default timeout so MongoDB binaries can download
@@ -21,7 +21,14 @@ class DBManager {
 
   async start() {
     const url = await this.server.getConnectionString();
-    this.connection = await MongoClient.connect(url, { useNewUrlParser: true });
+    this.connection = await db.connect(url, function(err) {
+      //connecting the database
+      if(err) {
+        console.log('Unable to connect to Mongo.');
+        process.exit(1)
+      }
+      console.log('Connected to Mongo');
+    });
     this.db = this.connection.db(await this.server.getDbName());
   }
 

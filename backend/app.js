@@ -3,7 +3,7 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const {MongoClient} = require('mongodb');
+const {db} = require('./db');
 const jwt = require('jsonwebtoken');
 const { SECRET } = require('../secret');
 const { validateSignupSchema, validateLoginSchema } = require('./schema');
@@ -11,9 +11,9 @@ const { authenticateUser } = require('./middleware/authenticateUser');
 const validateJSONSchema = require('./middleware/validateJSONSchema');
 const { UserNotFoundError, PlayerCheckedInError } = require('./errors');
 const { getDistanceInMiles } = require('./helpers/getDistanceInMi');
+const {PORT} = require('./config');
 const cron = require('node-cron');
 const morgan = require('morgan');
-const {PORT, DB_NAME, DB_PORT} = require('./config');
 const LAT_LOWER = 37.883581;
 const LONG_LOWER = -122.269655;
 const LAT_UPPER = 37.883284;
@@ -27,13 +27,6 @@ app.use(morgan('tiny'));
 //Todo: BREAK UP POST /PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
 //Todo: MODIFY FRONTEND CHECKIN SO THAT IT WORKS WITH BACKEND POST PLAYERS
 
-// set up a connection to the server running on localhost (mongod)
-const mongo = new MongoClient(`mongodb://localhost:${DB_PORT}`, {
-  useNewUrlParser: true
-});
-
-let db;
-
 /***************** ROUTES ***************************/
 
 /**
@@ -42,7 +35,7 @@ let db;
 
 app.get('/players', authenticateUser, async function(req, res, next) {
   try {
-    let result = await db
+    let result = await db.get()
       .collection('players')
       .find()
       .toArray();
@@ -57,7 +50,7 @@ app.get('/players', authenticateUser, async function(req, res, next) {
  */
 app.get('/otw', authenticateUser, async function(req, res, next) {
   try {
-    let result = await db
+    let result = await db.get()
       .collection('playersotw')
       .find()
       .toArray();
@@ -89,13 +82,13 @@ app.post('/players', authenticateUser, async function(req, res, next) {
     req.body.long1 < longLower &&
     req.body.long2 > longUpper;
   let player = req.body;
-  let foundPlayer = await db
+  let foundPlayer = await db.get()
     .collection('players')
     .findOne({ email: { $eq: player.email } });
   //A BIT CONFUSED ABOUT TIMESTAMP => SORTING BY TIMESTAMP
   if (foundPlayer === null && isAtCourt) {
     let newPlayer = { name: req.body.name, email: req.body.email };
-    await db.collection('players').insertOne(newPlayer);
+    await db.get().collection('players').insertOne(newPlayer);
     return res.json({
       message: 'You have successfully checked into the court!',
       newPlayer
@@ -104,7 +97,7 @@ app.post('/players', authenticateUser, async function(req, res, next) {
   if (foundPlayer === null && !isAtCourt) {
     //players on the way also have a distance property (calculated above)
     let newPlayer = { name: req.body.name, email: req.body.email, distance };
-    await db.collection('playersotw').insertOne(newPlayer);
+    await db.get().collection('playersotw').insertOne(newPlayer);
     return res.json({
       //we can display the users that are at the court in this message to motivate people?
       message: 'You are on the way! Get there quickly to play some ball',
@@ -123,7 +116,7 @@ app.post('/players', authenticateUser, async function(req, res, next) {
 app.delete('/players', authenticateUser, async function(req, res, next) {
   try {
     let playerEmail = req.body.email;
-    await db.collection('players').deleteOne({ email: { $eq: playerEmail } });
+    await db.get().collection('players').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
       status: 'You have successfully checked out of the court!',
       playerEmail
@@ -140,7 +133,7 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
 app.delete('/otw', authenticateUser, async function(req, res, next) {
   try {
     let playerEmail = req.body.email;
-    await db.collection('otw').deleteOne({ email: { $eq: playerEmail } });
+    await db.get().collection('otw').deleteOne({ email: { $eq: playerEmail } });
     return res.json({
       status: 'You have successfully updated your location!',
       playerEmail
@@ -156,7 +149,7 @@ app.delete('/otw', authenticateUser, async function(req, res, next) {
 
 app.get('/players/count', async function(req, res, next) {
   try {
-    let playerCount = await db.collection('players').count();
+    let playerCount = await db.get().collection('players').count();
     return res.json({ count: playerCount });
   } catch (err) {
     next(err);
@@ -182,7 +175,7 @@ app.post('/signup', validateJSONSchema(validateSignupSchema), async function(
       .findOne({ email: { $eq: userEmail } });
     if (userFound === null) {
       let token = jwt.sign(newUser, SECRET);
-      await db.collection('users').insertOne(newUser);
+      await db.get().collection('users').insertOne(newUser);
       return res.json({_token: token});
     } else {
       let token = jwt.sign(userFound, SECRET);
@@ -220,8 +213,8 @@ app.post('/login', validateJSONSchema(validateLoginSchema), async function(
 
 // Cron Job which clears players from court every 24 hours
 cron.schedule('* * */24 * * *', () => {
-  db.collection('players').deleteMany({});
-  console.log('Players cleared');
+  db.get().collection('players').deleteMany({});
+  console.log('Clearing players');
 });
 
 /************ GENERAL ERROR HANDLER *******************************/
@@ -236,7 +229,7 @@ app.use(function(err, req, res, next) {
 
 /************* DATABASE CONNECTION AND SERVER SET UP **********************/
 
-mongo.connect(function(error) {
+db.connect(function(error) {
   // a standard Node.js "error-first" callback
   if (error) {
     // kill express if we cannot connect to the database server
@@ -245,8 +238,6 @@ mongo.connect(function(error) {
   }
 
   console.log('Successfully connected to database');
-  // set the active database
-  db = mongo.db(DB_NAME);
 
   app.listen(PORT, function() {
     console.log(`Courtside Counter API Server listening on port ${PORT}.`);

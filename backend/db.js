@@ -1,26 +1,31 @@
-import mongoose from 'mongoose';
-import bluebird from 'bluebird';
+const {MongoClient} = require('mongodb');
 
-module.exports = {
-  mongoose,
-  init: () => {
-      mongoose.Promise = bluebird;
-  },
-  connect: async database => {
-      try {
-          const conn =  await mongoose.connect(
-              database,
-              { useNewUrlParser: true }
-          );
+const {DB_URI} = require('./config');
 
-          //eslint-disable-next-line
-          console.log(`MongoDb Connected on: ${database}`);
+const state = {
+  db: null,
+}
 
-          return conn;
-      } catch (err) {
-          //eslint-disable-next-line
-          console.log('Error to connect on mongo', err);
-      }
-  },
-  disconnect: async () => await mongoose.connection.close()
-};
+exports.connect = function(done) {
+  if (state.db) return done()
+
+  MongoClient.connect(DB_URI, function(err, db) {
+    if (err) return done(err)
+    state.db = db
+    done()
+  })
+}
+
+exports.get = function() {
+  return state.db
+}
+
+exports.close = function(done) {
+  if (state.db) {
+    state.db.close(function(err) {
+      state.db = null
+      state.mode = null
+      done(err)
+    })
+  }
+}

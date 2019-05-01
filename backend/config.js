@@ -16,10 +16,12 @@ if (process.env.NODE_ENV === 'test') {
   DB_NAME = process.env.DATABASE_URL || 'basketball_db';
 }
 
+let DB_URI = `mongodb://localhost:${DB_PORT}/${DB_NAME}`;
 
 module.exports = {
   SECRET,
   PORT,
   DB_NAME,
-  DB_PORT
+  DB_PORT,
+  DB_URI
 };
