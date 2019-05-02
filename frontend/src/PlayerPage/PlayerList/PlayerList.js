@@ -1,31 +1,21 @@
 import React, { Component } from 'react';
-import CourtsideCounterApi from '../../util/CourtsideCounterAPI';
-// import { getPlayerData } from '../../util/mockAPI';
 
 class PlayerList extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      players: [],
-    };
-  }
-
-  async componentDidMount() {
-    try {
-      const players = await CourtsideCounterApi.getPlayers(
-        this.props.currUser._token 
-      );
-      this.setState({ players});
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   render() {
-    const players = this.state.players.map(player => (
+    const players = this.props.players.map(player => (
       <div key={player._id}>{player.name}</div>
     ));
-    return <div>{players}</div>;
+    const otw = this.props.otw.map(otw => (
+      <div key={otw._id}>
+        {otw.name} - {otw.distance} miles away as of {Date(otw.timestamp)}
+      </div>
+    ));
+    return (
+      <>
+        <div>{otw}</div>
+        <div>{players}</div>
+      </>
+    );
   }
 }
 

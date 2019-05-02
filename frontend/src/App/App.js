@@ -43,11 +43,7 @@ class App extends Component {
       email,
       name
     });
-    debugger;
-    console.log(SECRET);
-    console.log('token', _token);
     const user = await jwt.verify(_token, SECRET);
-    console.log(user);
     user._token = _token;
     this.setState({ currUser: user });
     localStorage.setItem('token', _token);

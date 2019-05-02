@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import CourtsideCounterAPI from '../util/CourtsideCounterAPI';
-// import { getUserData } from '../util/mockAPI';
 import Button from '../Button';
 import { Redirect } from 'react-router-dom';
 
@@ -36,8 +34,7 @@ class AuthForm extends Component {
         this.props.history.push('/players');
       }
     } catch (err) {
-      console.log(err);
-      this.setState({ errors: err });
+      this.setState(st=>({ errors: [...st.errors, err] }));
     }
   }
 

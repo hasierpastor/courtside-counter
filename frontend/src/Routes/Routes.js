@@ -17,12 +17,12 @@ class Routes extends Component {
         <Route
           exact
           path="/login"
-          render={props => <AuthForm {...this.props} {...props} />}
+          render={props => <AuthForm {...props} />}
         />
         <Route
           exact
           path="/signup"
-          render={props => <AuthForm {...this.props} {...props} />}
+          render={props => <AuthForm doSignup={this.props.doSignup} doLogin={this.props.doLogin} currUser={this.props.currUser} {...props} />}
         />
         <Route
           exact

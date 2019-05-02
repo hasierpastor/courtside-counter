@@ -55,24 +55,24 @@ export default class CourtsideCounterAPI {
     }
   }
 
-  static async checkoutPlayer(token) {
+  static async checkoutPlayer(_token) {
     try {
       let response = await axios({
         method: 'delete',
         url: `${BASE_URL}/players`, 
-        data: token
+        data: _token
       });
       return response.data;
     } catch (e) {
       throw e;
     }
   }
-  static async checkinPlayer(token) {
+  static async checkinPlayer(_token, lat, long, timestamp) {
     try {
       let response = await axios({
         method: 'post',
         url: `${BASE_URL}/players`, 
-        data: token
+        data: {_token, lat, long, timestamp}
       });
       return response.data;
     } catch (e) {
