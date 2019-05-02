@@ -7,7 +7,7 @@ class PlayerList extends Component {
     ));
     const otw = this.props.otw.map(otw => (
       <div key={otw._id}>
-        {otw.name} - {otw.distance} miles away as of {Date(otw.timestamp)}
+        {otw.name} - {otw.distance} miles away as of {otw.timestamp}
       </div>
     ));
     return (

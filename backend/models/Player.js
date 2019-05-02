@@ -30,6 +30,9 @@ class Player {
           { upsert: true }
         );
 
+      //removing from players collection
+      await OTW.removeOTW(email);
+
       let addPlayer = { name, email, timestamp };
       return {
         message: 'Checked into court',
@@ -42,8 +45,11 @@ class Player {
     if (!isAtCourt) {
       //players on the way also have a distance property (calculated above)
       let otwPlayer = { name, email };
-      console.log(otwPlayer);
       await OTW.addOTW(otwPlayer, distance, timestamp);
+
+      //removing from players collection
+      await this.removePlayer(email);
+
       return {
         message: 'Added to OTW',
         player: otwPlayer,
@@ -68,7 +74,11 @@ class Player {
   }
 
   static async countPlayers() {
-    return await db.collection('players').count();
+    return await db.collection(players).count();
+  }
+
+  static async checkStatus(playerEmail) {
+    return await db.collection(players).find({ email: { $eq: playerEmail } }).count();
   }
 }
 

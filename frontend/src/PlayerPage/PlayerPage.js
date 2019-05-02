@@ -30,8 +30,6 @@ class PlayerPage extends Component {
           CourtsideCounterAPI.getOTW(this.props.currUser._token)
         ]);
 
-        console.log(responses);
-
         this.setState({ players: responses[0].players, otw: responses[1].otw });
       }
     } catch (err) {
@@ -64,30 +62,13 @@ class PlayerPage extends Component {
 
   async handleCheckin() {
     try {
-      const { lat, long, timestamp } = await this.getLocationAsync();
-
-      // now that we have lat long, we can
-      //api request to handleCheckin
-      let { isAtCourt, distance } = await CourtsideCounterAPI.checkinPlayer(
-        this.props.currUser._token,
-        lat,
-        long,
-        timestamp
-      );
+      this.props.checkinPlayer();
 
       let responses = await Promise.all([
         CourtsideCounterAPI.getPlayers(this.props.currUser._token),
         CourtsideCounterAPI.getOTW(this.props.currUser._token)
       ]);
-      console.log(responses)
-
       this.setState({
-        lat,
-        long,
-        timestamp,
-        isAtCourt,
-        distance,
-        isCheckedIn: true,
         players: responses[0].players,
         otw: responses[1].otw
       });
@@ -97,14 +78,16 @@ class PlayerPage extends Component {
     }
   }
 
+  async handleCheckout() {}
+
   render() {
     //replace checkin button with checkout and update status button when someone is checked in
-    let status = this.state.isCheckedIn ? (
+    let status = this.props.isCheckedIn ? (
       <div>
-        {this.state.isAtCourt
+        {this.props.isAtCourt
           ? 'You are at the court!'
-          : `You were ${this.state.distance} miles from the court at ${Date(
-              this.state.timestamp
+          : `You were ${this.props.distance} miles from the court at ${Date(
+              this.props.timestamp
             )}`}
       </div>
     ) : null;
@@ -113,10 +96,10 @@ class PlayerPage extends Component {
       <>
         {status}
         <div className="statusButtons">
-          {this.state.isCheckedIn ? (
+          {this.props.isCheckedIn ? (
             <>
-              <Button handleClick={this.handleCheckin}>Update location</Button>
-              <Button handleClick={this.handleCheckin}>Checkout</Button>
+              <Button handleClick={this.handleCheckin}>Update</Button>
+              <Button handleClick={this.handleCheckout}>Checkout</Button>
             </>
           ) : (
             <Button handleClick={this.handleCheckin}>Check In</Button>

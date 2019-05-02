@@ -9,10 +9,18 @@ class App extends Component {
     super(props);
     this.state = {
       isLoading: true,
-      currUser: null
+      currUser: null,
+      isCheckedIn: false,
+      isAtCourt: false,
+      lat: null,
+      long: null,
+      timestamp: null,
+      locationError: null,
+      distance: null
     };
     this.doLogin = this.doLogin.bind(this);
     this.doSignup = this.doSignup.bind(this);
+    this.checkinPlayer = this.checkinPlayer.bind(this);
   }
 
   async componentDidMount() {
@@ -20,9 +28,56 @@ class App extends Component {
     if (_token) {
       const user = await jwt.verify(_token, SECRET);
       user._token = _token;
-      this.setState({ currUser: user, isLoading: false });
+      //check here is the user is checked in (they are in otw or players)
+      let isCheckedIn = await CourtsideCounterAPI.checkStatus(user.email);
+
+      this.setState({ currUser: user, isLoading: false, isCheckedIn });
     } else {
       this.setState({ isLoading: false });
+    }
+  }
+
+  async checkinPlayer() {
+    const { lat, long, timestamp } = await this.getLocationAsync();
+
+    // now that we have lat long, we can
+    //api request to handleCheckin
+    let { isAtCourt, distance } = await CourtsideCounterAPI.checkinPlayer(
+      this.state.currUser._token,
+      lat,
+      long,
+      timestamp
+    );
+    this.setState({
+      lat,
+      long,
+      timestamp,
+      isAtCourt,
+      distance,
+      isCheckedIn: true
+    });
+  }
+
+  //function that gets the location and return a promise
+  getLocationAsync() {
+    if (navigator.geolocation) {
+      return new Promise(function(resolve, reject) {
+        navigator.geolocation.getCurrentPosition(
+          function(position) {
+            resolve({
+              long: position.coords.longitude,
+              lat: position.coords.latitude,
+              timestamp: position.timestamp
+            });
+          },
+          function(PostionError) {
+            reject(PostionError);
+          },
+          { enableHighAccuracy: true }
+        );
+      });
+    } else {
+      throw new Error('Geo Location not supported by browser');
     }
   }
 
@@ -39,7 +94,7 @@ class App extends Component {
   }
 
   async doSignup(name, email) {
-    let {_token} = await CourtsideCounterAPI.signup({
+    let { _token } = await CourtsideCounterAPI.signup({
       email,
       name
     });
@@ -59,9 +114,10 @@ class App extends Component {
     }
     return (
       <Routes
-        currUser={this.state.currUser}
+        {...this.state}
         doLogin={this.doLogin}
         doSignup={this.doSignup}
+        checkinPlayer={this.checkinPlayer}
       />
     );
   }

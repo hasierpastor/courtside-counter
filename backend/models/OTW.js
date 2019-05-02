@@ -28,6 +28,10 @@ class OTW {
     return;
   }
 
+  static async checkStatus(playerEmail) {
+    return await db.collection(otw).find({ email: { $eq: playerEmail } }).count();
+  }
+
 }
 
 module.exports = OTW;

@@ -60,7 +60,7 @@ export default class CourtsideCounterAPI {
       let response = await axios({
         method: 'delete',
         url: `${BASE_URL}/players`, 
-        data: _token
+        data: {_token}
       });
       return response.data;
     } catch (e) {
@@ -73,6 +73,18 @@ export default class CourtsideCounterAPI {
         method: 'post',
         url: `${BASE_URL}/players`, 
         data: {_token, lat, long, timestamp}
+      });
+      return response.data;
+    } catch (e) {
+      throw e;
+    }
+  }
+  static async checkStatus(email) {
+    try {
+      let response = await axios({
+        method: 'get',
+        url: `${BASE_URL}/players/status`, 
+        params: {email}
       });
       return response.data;
     } catch (e) {

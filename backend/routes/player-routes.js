@@ -7,6 +7,7 @@ const db = mongoUtil.get();
 const { PlayerCheckedInError } = require('../errors');
 
 const Player = require('../models/Player');
+const OTW = require('../models/OTW');
 
 router.get('/', authenticateUser, async function(req, res, next) {
   try {
@@ -21,8 +22,6 @@ router.get('/', authenticateUser, async function(req, res, next) {
  * Route handler for POST to /players =>  check player into the court, if not checked in then return player and success message.
  * If player already checked in return PlayerCheckedIn error
  */
-
-//BREAK UP TOO MUCH LOGIC?????
 
 router.post('/', authenticateUser, async function(req, res, next) {
   try {
@@ -64,10 +63,25 @@ router.delete('/', authenticateUser, async function(req, res, next) {
  * Route handler for GET to /players/count => returns number of players at the court
  */
 
-router.get('/count', async function(req, res, next) {
+router.get('/count', authenticateUser, async function(req, res, next) {
   try {
     let playerCount = await Player.countPlayers();
     return res.json({ count: playerCount });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Route handler for GET to /players/status => returns if user is checkedIn (in otw or players)
+ */
+
+router.get('/status', authenticateUser, async function(req, res, next) {
+  try {
+    let isInPlayers = await Player.checkStatus(req.email);
+    let isInOTW = await OTW.checkStatus(req.email);
+    let status = isInOTW || isInPlayers;
+    return res.json({ isCheckedIn: status });
   } catch (err) {
     next(err);
   }

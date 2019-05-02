@@ -17,17 +17,17 @@ class Routes extends Component {
         <Route
           exact
           path="/login"
-          render={props => <AuthForm {...props} />}
+          render={props => <AuthForm {...props} doLogin={this.props.doLogin} currUser={this.props.currUser} />}
         />
         <Route
           exact
           path="/signup"
-          render={props => <AuthForm doSignup={this.props.doSignup} doLogin={this.props.doLogin} currUser={this.props.currUser} {...props} />}
+          render={props => <AuthForm doSignup={this.props.doSignup} currUser={this.props.currUser} {...props} />}
         />
         <Route
           exact
           path="/players"
-          render={props => <PlayerPage {...props} currUser={this.props.currUser} />}
+          render={props => <PlayerPage {...props} {...this.props} />}
         />
         <Redirect to="/" />
       </Switch>
