@@ -80,7 +80,7 @@ router.get('/status', authenticateUser, async function(req, res, next) {
   try {
     let isInPlayers = await Player.checkStatus(req.email);
     let isInOTW = await OTW.checkStatus(req.email);
-    let status = isInOTW || isInPlayers;
+    let status = Boolean(isInOTW || isInPlayers);
     return res.json({ isCheckedIn: status });
   } catch (err) {
     next(err);
