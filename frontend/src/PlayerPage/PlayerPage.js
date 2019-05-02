@@ -54,9 +54,9 @@ class PlayerPage extends Component {
   }
 
   render() {
+    //replace checkin button with checkout and update status button when someone is checked in
+    let statusButtons = {}
     return (
-      //replace checkin button with checkout and update status button when someone is checked in
-      let statusButtons = {}
       <>
         <PlayerList currUser={this.props.currUser} />
         <Button handleClick={this.handleCheckin}>Check In</Button>

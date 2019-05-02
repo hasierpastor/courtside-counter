@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const { SECRET } = require('../../secret');
+const { SECRET } = require('../../frontend/src/secret');
 const mongoUtil = require('../mongoUtil');
 const db = mongoUtil.get();
 const { UserNotFoundError } = require('../errors');
 
 class Auth {
 
-  static async getOTW(user) {
+  static async signup(user) {
     let userEmail = user.email;
     let userFound = await db
       .collection('users')

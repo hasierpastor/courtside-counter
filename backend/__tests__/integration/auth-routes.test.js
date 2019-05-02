@@ -1,10 +1,8 @@
-const { MongoClient } = require('mongodb');
 const request = require('supertest');
 const app = require('../../app');
-const DBManager = require('../../DBManager');
-const { DB_PORT, DB_NAME } = require('../../config');
-const dbman = new DBManager(DB_PORT, DB_NAME);
 const uuid = require('uuid');
+const mongoUtil = require('../../mongoUtil');
+const db = mongoUtil.connect();
 
 // beforeEach(async () => {
 //   const user1 = {
@@ -32,7 +30,10 @@ describe('POST /signup', () => {
   });
 
   afterAll(async () => {
-    await dbman.stop();
+    await db.close(function(err) {
+      if(err) console.log(err);
+      console.log('db closed');
+    });
   });
 
   it('it should signup a user', async () => {

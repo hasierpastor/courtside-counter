@@ -16,10 +16,10 @@ class App extends Component {
   }
 
   async componentDidMount() {
-    const token = localStorage.getItem('token');
-    if (token) {
-      const user = await jwt.verify(token, SECRET);
-      user._token = token;
+    const _token = localStorage.getItem('token');
+    if (_token) {
+      const user = await jwt.verify(_token, SECRET);
+      user._token = _token;
       this.setState({ currUser: user, isLoading: false });
     } else {
       this.setState({ isLoading: false });
@@ -31,20 +31,26 @@ class App extends Component {
       email
     });
     const user = await jwt.verify(token, SECRET);
+
+    //Adding the token to the user object
     user._token = token;
     this.setState({ currUser: user });
     localStorage.setItem('token', token);
   }
 
   async doSignup(name, email) {
-    let token = await CourtsideCounterAPI.signup({
+    let {_token} = await CourtsideCounterAPI.signup({
       email,
       name
     });
-    const user = await jwt.verify(token, SECRET);
-    user._token = token;
+    debugger;
+    console.log(SECRET);
+    console.log('token', _token);
+    const user = await jwt.verify(_token, SECRET);
+    console.log(user);
+    user._token = _token;
     this.setState({ currUser: user });
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', _token);
   }
 
   // doLogout() {

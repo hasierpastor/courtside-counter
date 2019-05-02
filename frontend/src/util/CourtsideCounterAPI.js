@@ -1,4 +1,4 @@
-const BASE_URL = 'http://192.168.1.64:3333';
+const BASE_URL = 'http://127.0.0.1:3333';
 const axios = require('axios');
 
 export default class CourtsideCounterAPI {
