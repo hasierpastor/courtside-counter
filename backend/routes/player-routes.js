@@ -1,12 +1,21 @@
+const express = require('express');
+const router = new express.Router();
+const { authenticateUser } = require('../middleware/authenticateUser');
+const { getDistanceInMiles } = require('../helpers/getDistanceInMi');
+const mongoUtil = require('../mongoUtil');
+const db = mongoUtil.get();
+const { PlayerCheckedInError } = require('../errors');
+const LAT_LOWER = 37.883581;
+const LONG_LOWER = -122.269655;
+const LAT_UPPER = 37.883284;
+const LONG_UPPER = -122.269609;
 
+const Player = require('../models/Player');
 
-app.get('/players', authenticateUser, async function(req, res, next) {
+router.get('/', authenticateUser, async function(req, res, next) {
   try {
-    let result = await dbman.db
-      .collection('players')
-      .find()
-      .toArray();
-    return res.json(result);
+    let response = await Player.getPlayers();
+    return res.json({ players: response });
   } catch (err) {
     next(err);
   }
@@ -19,49 +28,26 @@ app.get('/players', authenticateUser, async function(req, res, next) {
 
 //BREAK UP TOO MUCH LOGIC?????
 
-app.post('/players', authenticateUser, async function(req, res, next) {
-  //distance the player is from the court
-  let distance = getDistanceInMiles(
-    req.body.lat1,
-    req.body.long1,
-    req.body.lat2,
-    req.body.long2
-  );
-  //boolean which is true if plyer at court/false if player on the way => move logic to helpers
-  let isAtCourt =
-    req.body.lat1 < latLower &&
-    req.body.lat2 > latUpper &&
-    req.body.long1 < longLower &&
-    req.body.long2 > longUpper;
-  let player = req.body;
-  let foundPlayer = await dbman.db
-    .get()
-    .collection('players')
-    .findOne({ email: { $eq: player.email } });
-  //A BIT CONFUSED ABOUT TIMESTAMP => SORTING BY TIMESTAMP
-  if (foundPlayer === null && isAtCourt) {
-    let newPlayer = { name: req.body.name, email: req.body.email };
-    await dbman.db
-      .collection('players')
-      .insertOne(newPlayer);
-    return res.json({
-      message: 'You have successfully checked into the court!',
-      newPlayer
-    });
-  }
-  if (foundPlayer === null && !isAtCourt) {
-    //players on the way also have a distance property (calculated above)
-    let newPlayer = { name: req.body.name, email: req.body.email, distance };
-    await dbman.db
-      .collection('playersotw')
-      .insertOne(newPlayer);
-    return res.json({
-      //we can display the users that are at the court in this message to motivate people?
-      message: 'You are on the way! Get there quickly to play some ball',
-      newPlayer
-    });
-  } else {
-    let err = new PlayerCheckedInError();
+router.post('/', authenticateUser, async function(req, res, next) {
+  try {
+    //distance the player is from the court
+    let distance = getDistanceInMiles(
+      req.body.lat1,
+      req.body.long1,
+      req.body.lat2,
+      req.body.long2
+    );
+    //boolean which is true if plyer at court/false if player on the way => move logic to helpers
+    let isAtCourt =
+      req.body.lat1 < LAT_LOWER &&
+      req.body.lat2 > LAT_UPPER &&
+      req.body.long1 < LONG_LOWER &&
+      req.body.long2 > LONG_UPPER;
+    let player = req.body;
+
+    let response = await Player.checkinPlayer(player, isAtCourt, distance);
+    return res.json({ message: response.message, player: response.player });
+  } catch (err) {
     next(err);
   }
 });
@@ -70,15 +56,14 @@ app.post('/players', authenticateUser, async function(req, res, next) {
  * Route handler for DELETE to /players => removes players from court
  */
 
-app.delete('/players', authenticateUser, async function(req, res, next) {
+router.delete('/', authenticateUser, async function(req, res, next) {
   try {
+    let player = req.body;
     let playerEmail = req.body.email;
-    await dbman.db
-      .collection('players')
-      .deleteOne({ email: { $eq: playerEmail } });
+    await Player.removePlayer(playerEmail);
     return res.json({
-      status: 'You have successfully checked out of the court!',
-      playerEmail
+      message: 'You have successfully checked out of the court!',
+      player
     });
   } catch (err) {
     next(err);
@@ -89,14 +74,13 @@ app.delete('/players', authenticateUser, async function(req, res, next) {
  * Route handler for GET to /players/count => returns number of players at the court
  */
 
-app.get('/players/count', async function(req, res, next) {
+router.get('/count', async function(req, res, next) {
   try {
-    console.log(db.get());
-    let playerCount = await dbman.db
-      .collection('players')
-      .count();
+    let playerCount = await Player.countPlayers();
     return res.json({ count: playerCount });
   } catch (err) {
     next(err);
   }
 });
+
+module.exports = router;
