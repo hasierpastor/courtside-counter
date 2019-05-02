@@ -1,12 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const { validateSignupSchema, validateLoginSchema } = require('../schema');
-const { UserNotFoundError } = require('../errors');
 const validateJSONSchema = require('../middleware/validateJSONSchema');
-const jwt = require('jsonwebtoken');
-const { SECRET } = require('../../secret');
-const mongoUtil = require('../mongoUtil');
-const db = mongoUtil.get();
 
 const Auth = require('../models/Auth');
 

@@ -2,13 +2,9 @@ const express = require('express');
 const router = new express.Router();
 const { authenticateUser } = require('../middleware/authenticateUser');
 const { getDistanceInMiles } = require('../helpers/getDistanceInMi');
-const mongoUtil = require('../mongoUtil');
+const mongoUtil = require('../db/mongoUtil');
 const db = mongoUtil.get();
 const { PlayerCheckedInError } = require('../errors');
-const LAT_LOWER = 37.883581;
-const LONG_LOWER = -122.269655;
-const LAT_UPPER = 37.883284;
-const LONG_UPPER = -122.269609;
 
 const Player = require('../models/Player');
 
@@ -30,23 +26,17 @@ router.get('/', authenticateUser, async function(req, res, next) {
 
 router.post('/', authenticateUser, async function(req, res, next) {
   try {
-    //distance the player is from the court
-    let distance = getDistanceInMiles(
-      req.body.lat1,
-      req.body.long1,
-      req.body.lat2,
-      req.body.long2
+    let {lat, long, timestamp } = req.body;
+    let {email, name} = req;
+    let response = await Player.checkinPlayer(
+      email,
+      name,
+      lat,
+      long,
+      timestamp
     );
-    //boolean which is true if plyer at court/false if player on the way => move logic to helpers
-    let isAtCourt =
-      req.body.lat1 < LAT_LOWER &&
-      req.body.lat2 > LAT_UPPER &&
-      req.body.long1 < LONG_LOWER &&
-      req.body.long2 > LONG_UPPER;
-    let player = req.body;
-
-    let response = await Player.checkinPlayer(player, isAtCourt, distance);
-    return res.json({ message: response.message, player: response.player });
+    let { message, player, distance, isAtCourt } = response;
+    return res.json({ message, player, isAtCourt, distance });
   } catch (err) {
     next(err);
   }

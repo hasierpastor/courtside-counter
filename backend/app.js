@@ -15,7 +15,7 @@ app.use(morgan('tiny'));
 //Todo: BREAK UP POST /PLAYERS => ABSTRACT SOME LOGIC OUT MAYBE
 //Todo: MODIFY FRONTEND CHECKIN SO THAT IT WORKS WITH BACKEND POST PLAYERS
 
-const mongoUtil = require('./mongoUtil');
+const mongoUtil = require('./db/mongoUtil');
 
 /************* DATABASE CONNECTION **********************/
 mongoUtil.connect(function(error) {

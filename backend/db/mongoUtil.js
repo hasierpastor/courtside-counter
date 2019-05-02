@@ -1,5 +1,5 @@
 const { MongoClient } = require('mongodb');
-const { DB_URI, DB_NAME } = require('./config');
+const { DB_URI, DB_NAME } = require('../config');
 
 const state = {
   db: null

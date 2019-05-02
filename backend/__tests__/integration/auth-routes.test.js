@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../app');
 const uuid = require('uuid');
-const mongoUtil = require('../../mongoUtil');
+const mongoUtil = require('../../db/mongoUtil');
 const db = mongoUtil.connect();
 
 // beforeEach(async () => {

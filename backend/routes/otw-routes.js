@@ -1,7 +1,7 @@
 const express = require('express');
 const router = new express.Router();
 const { authenticateUser } = require('../middleware/authenticateUser');
-const mongoUtil = require('../mongoUtil');
+const mongoUtil = require('../db/mongoUtil');
 const db = mongoUtil.get();
 
 const OTW = require('../models/OTW');

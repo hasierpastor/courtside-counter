@@ -1,11 +1,13 @@
-const mongoUtil = require('../mongoUtil');
+const mongoUtil = require('../db/mongoUtil');
 const db = mongoUtil.get();
+const {otw} = require('../db/constants');
+
 
 class OTW {
 
   static async getOTW() {
     let result = await db
-      .collection('otw')
+      .collection(otw)
       .find()
       .toArray();
 
@@ -14,15 +16,15 @@ class OTW {
 
   static async removeOTW(otwEmail) {
     await db
-      .collection('otw')
+      .collection(otw)
       .deleteOne({ email: { $eq: otwEmail } });
     return;
   }
 
-  static async addOTW(otwPlayer) {
+  static async addOTW(otwPlayer, distance, timestamp) {
     await db
-      .collection('otw')
-      .insertOne(otwPlayer);
+    .collection(otw)
+    .updateOne({ email: { $eq: otwPlayer.email } }, {$set: {distance: distance, timestamp: timestamp, name: otwPlayer.name}}, {upsert: true});
     return;
   }
 
