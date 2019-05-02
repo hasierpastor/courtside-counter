@@ -29,7 +29,7 @@ class App extends Component {
       const user = await jwt.verify(_token, SECRET);
       user._token = _token;
       //check here is the user is checked in (they are in otw or players)
-      let isCheckedIn = await CourtsideCounterAPI.checkStatus(user.email);
+      let isCheckedIn = await CourtsideCounterAPI.checkStatus(_token);
 
       this.setState({ currUser: user, isLoading: false, isCheckedIn });
     } else {

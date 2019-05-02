@@ -79,12 +79,12 @@ export default class CourtsideCounterAPI {
       throw e;
     }
   }
-  static async checkStatus(email) {
+  static async checkStatus(_token) {
     try {
       let response = await axios({
         method: 'get',
         url: `${BASE_URL}/players/status`, 
-        params: {email}
+        params: {_token}
       });
       return response.data;
     } catch (e) {
