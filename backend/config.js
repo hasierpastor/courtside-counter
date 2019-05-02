@@ -16,7 +16,7 @@ if (process.env.NODE_ENV === 'test') {
   DB_NAME = process.env.DATABASE_URL || 'basketball_db';
 }
 
-let DB_URI = `mongodb://localhost:${DB_PORT}/${DB_NAME}`;
+let DB_URI = `mongodb://localhost:${DB_PORT}`;
 
 module.exports = {
   SECRET,
