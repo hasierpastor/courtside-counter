@@ -3,7 +3,6 @@ import { Switch, Route, Redirect } from 'react-router-dom';
 import Home from '../Home';
 import AuthForm from '../AuthForm/AuthForm';
 import PlayerPage from '../PlayerPage';
-import CheckIn from '../CheckIn';
 
 class Routes extends Component {
   render() {
@@ -17,17 +16,17 @@ class Routes extends Component {
         <Route
           exact
           path="/login"
-          render={props => <AuthForm {...this.props} {...props} />}
+          render={props => <AuthForm {...props} doLogin={this.props.doLogin} currUser={this.props.currUser} />}
         />
         <Route
           exact
           path="/signup"
-          render={props => <AuthForm {...this.props} {...props} />}
+          render={props => <AuthForm doSignup={this.props.doSignup} currUser={this.props.currUser} {...props} />}
         />
         <Route
           exact
           path="/players"
-          render={props => <PlayerPage {...props} currUser={this.props.currUser} />}
+          render={props => <PlayerPage {...props} {...this.props} />}
         />
         <Redirect to="/" />
       </Switch>

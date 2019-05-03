@@ -1,7 +1,7 @@
 //function that takes in a set of latitudes and longitudes and returns the distance in miles
 //used to calculate how far the players (who are on the way) are from the court
 function getDistanceInMiles(lat1, lon1, lat2, lon2) {
-  var R = 3958.8; // Radius of the earth in km
+  var R = 3958.8; // Radius of the earth in miles
   var dLat = degTorad(lat2 - lat1); // deg2rad below
   var dLon = degTorad(lon2 - lon1);
   var a =
