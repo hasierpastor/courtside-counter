@@ -22,6 +22,7 @@ class App extends Component {
     this.doSignup = this.doSignup.bind(this);
     this.checkinPlayer = this.checkinPlayer.bind(this);
     this.checkoutPlayer = this.checkoutPlayer.bind(this);
+    this.updateCurrUser = this.updateCurrUser.bind(this);
   }
 
   async componentDidMount() {
@@ -105,15 +106,11 @@ class App extends Component {
   }
 
   async doLogin(email) {
-    let token = await CourtsideCounterAPI.login({
+    let {_token} = await CourtsideCounterAPI.login({
       email
     });
-    const user = await jwt.verify(token, SECRET);
-
-    //Adding the token to the user object
-    user._token = token;
-    this.setState({ currUser: user });
-    localStorage.setItem('token', token);
+    localStorage.setItem('token', _token);
+    this.updateCurrUser();
   }
 
   async doSignup(name, email) {
@@ -121,15 +118,35 @@ class App extends Component {
       email,
       name
     });
-    const user = await jwt.verify(_token, SECRET);
-    user._token = _token;
-    this.setState({ currUser: user });
     localStorage.setItem('token', _token);
+    this.updateCurrUser();
   }
 
-  // doLogout() {
+  async updateCurrUser() {
+    const _token = localStorage.getItem('token');
+    if (_token) {
+      const user = await jwt.verify(_token, SECRET);
+      user._token = _token;
+      //check here is the user is checked in (they are in otw or players)
+      let {
+        isCheckedIn,
+        distance,
+        timestamp,
+        isAtCourt
+      } = await CourtsideCounterAPI.checkStatus(_token);
 
-  // }
+      this.setState({
+        currUser: user,
+        isLoading: false,
+        isCheckedIn,
+        distance,
+        timestamp,
+        isAtCourt
+      });
+    } else {
+      this.setState({ isLoading: false });
+    }
+  }
 
   render() {
     if (this.state.isLoading) {

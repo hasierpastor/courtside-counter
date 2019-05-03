@@ -34,7 +34,7 @@ class AuthForm extends Component {
         this.props.history.push('/players');
       }
     } catch (err) {
-      this.setState(st=>({ errors: [...st.errors, err] }));
+      console.log(err);
     }
   }
 

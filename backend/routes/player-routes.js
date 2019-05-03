@@ -125,6 +125,7 @@ router.get('/status', authenticateUser, async function(req, res, next) {
       isAtCourt = false;
     } else if (otw) {
       isCheckedIn = true;
+      isAtCourt = false;
       distance = otw.distance;
       timestamp = otw.timestamp;
     } else {
