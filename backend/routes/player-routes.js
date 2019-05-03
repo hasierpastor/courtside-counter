@@ -2,9 +2,11 @@ const express = require('express');
 const router = new express.Router();
 const { authenticateUser } = require('../middleware/authenticateUser');
 const { getDistanceInMiles } = require('../helpers/getDistanceInMi');
-const mongoUtil = require('../db/mongoUtil');
-const db = mongoUtil.get();
 const { PlayerCheckedInError } = require('../errors');
+const LAT_LOWER = 37.883581;
+const LONG_LOWER = -122.269655;
+const LAT_UPPER = 37.883284;
+const LONG_UPPER = -122.269609;
 
 const Player = require('../models/Player');
 const OTW = require('../models/OTW');
@@ -25,17 +27,51 @@ router.get('/', authenticateUser, async function(req, res, next) {
 
 router.post('/', authenticateUser, async function(req, res, next) {
   try {
-    let {lat, long, timestamp } = req.body;
-    let {email, name} = req;
-    let response = await Player.checkinPlayer(
-      email,
-      name,
-      lat,
-      long,
-      timestamp
-    );
-    let { message, player, distance, isAtCourt } = response;
-    return res.json({ message, player, isAtCourt, distance });
+    let { lat, long, timestamp } = req.body;
+    let { email, name } = req;
+    //distance the player is from the court
+    let distance = getDistanceInMiles(lat, long, LAT_LOWER, LONG_LOWER);
+
+    //boolean which is true if plyer at court/false if player on the way => move logic to helpers
+    let isAtCourt =
+      lat < LAT_LOWER &&
+      lat > LAT_UPPER &&
+      long < LONG_LOWER &&
+      long > LONG_UPPER;
+    //TODO: SORT PLAYERS BY TIMESTAMP
+    if (isAtCourt) {
+      //add to player collection and remove from otw collection
+      await Promise.all([
+        Player.addPlayer(email, name, lat, long, timestamp, distance),
+        OTW.removeOTW(email)
+      ]);
+
+      return res.json({
+        message: 'Checked into court',
+        player: { name, email },
+        distance,
+        timestamp,
+        isAtCourt
+      });
+    }
+
+    if (!isAtCourt) {
+      //add to otw collection and remove from player collection
+      await Promise.all([
+        OTW.addOTW(email, name, distance, timestamp),
+        Player.removePlayer(email)
+      ]);
+
+      return res.json({
+        message: 'Added to OTW',
+        player: { name, email },
+        distance,
+        timestamp,
+        isAtCourt
+      });
+    } else {
+      throw new PlayerCheckedInError();
+    }
   } catch (err) {
     next(err);
   }
@@ -47,12 +83,10 @@ router.post('/', authenticateUser, async function(req, res, next) {
 
 router.delete('/', authenticateUser, async function(req, res, next) {
   try {
-    let player = req.body;
-    let playerEmail = req.body.email;
-    await Player.removePlayer(playerEmail);
+    let playerEmail = req.email;
+    await Promise.all([Player.removePlayer(playerEmail), OTW.removeOTW(playerEmail)]);
     return res.json({
-      message: 'You have successfully checked out of the court!',
-      player
+      message: 'You have successfully checked out!',
     });
   } catch (err) {
     next(err);
@@ -78,10 +112,28 @@ router.get('/count', authenticateUser, async function(req, res, next) {
 
 router.get('/status', authenticateUser, async function(req, res, next) {
   try {
-    let isInPlayers = await Player.checkStatus(req.email);
-    let isInOTW = await OTW.checkStatus(req.email);
-    let status = Boolean(isInOTW || isInPlayers);
-    return res.json({ isCheckedIn: status });
+    let responses = await Promise.all([
+      Player.getPlayer(req.email),
+      OTW.getOTW(req.email)
+    ]);
+    let [player, otw] = responses;
+    let isCheckedIn, distance, timestamp, isAtCourt;
+    if (!player && !otw) {
+      isCheckedIn = false;
+      distance = null;
+      timestamp = null;
+      isAtCourt = false;
+    } else if (otw) {
+      isCheckedIn = true;
+      distance = otw.distance;
+      timestamp = otw.timestamp;
+    } else {
+      isAtCourt = true;
+      isCheckedIn = true;
+      distance = player.distance;
+      timestamp = player.timestamp;
+    }
+    return res.json({ isAtCourt, isCheckedIn, distance, timestamp});
   } catch (err) {
     next(err);
   }

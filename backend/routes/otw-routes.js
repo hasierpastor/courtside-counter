@@ -1,8 +1,6 @@
 const express = require('express');
 const router = new express.Router();
 const { authenticateUser } = require('../middleware/authenticateUser');
-const mongoUtil = require('../db/mongoUtil');
-const db = mongoUtil.get();
 
 const OTW = require('../models/OTW');
 
@@ -11,7 +9,7 @@ const OTW = require('../models/OTW');
  */
 router.get('/', authenticateUser, async function(req, res, next) {
   try {
-    let response = await OTW.getOTW();
+    let response = await OTW.getOTWs();
     return res.json({'otw': response});
   } catch (err) {
     next(err);

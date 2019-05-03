@@ -5,7 +5,7 @@ const {otw} = require('../db/constants');
 
 class OTW {
 
-  static async getOTW() {
+  static async getOTWs() {
     let result = await db
       .collection(otw)
       .find()
@@ -21,15 +21,15 @@ class OTW {
     return;
   }
 
-  static async addOTW(otwPlayer, distance, timestamp) {
+  static async addOTW(otwEmail, name, distance, timestamp) {
     await db
     .collection(otw)
-    .updateOne({ email: { $eq: otwPlayer.email } }, {$set: {distance: distance, timestamp: timestamp, name: otwPlayer.name}}, {upsert: true});
+    .updateOne({ email: { $eq: otwEmail } }, {$set: {distance, timestamp, name}}, {upsert: true});
     return;
   }
 
-  static async checkStatus(playerEmail) {
-    return await db.collection(otw).find({ email: { $eq: playerEmail } }).count();
+  static async getOTW(playerEmail) {
+    return await db.collection(otw).findOne({ email: { $eq: playerEmail } });
   }
 
 }
