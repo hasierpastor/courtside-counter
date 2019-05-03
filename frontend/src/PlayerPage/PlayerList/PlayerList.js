@@ -12,8 +12,12 @@ class PlayerList extends Component {
     ));
     return (
       <>
-        <div>{otw}</div>
-        <div>{players}</div>
+        <div>
+          <h1>OTW LIST</h1>
+        {otw}</div>
+        <div>
+          <h1>PLAYER LIST</h1>
+        {players}</div>
       </>
     );
   }

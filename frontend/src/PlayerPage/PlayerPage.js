@@ -66,7 +66,8 @@ class PlayerPage extends Component {
 
   async handleCheckout() {
     try {
-      this.props.checkoutPlayer();
+      await this.props.checkoutPlayer();
+      this.handleUpdate();
     } catch (e) {
       console.error(e);
     }
