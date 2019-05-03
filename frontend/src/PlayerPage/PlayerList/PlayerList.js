@@ -14,10 +14,12 @@ class PlayerList extends Component {
       <>
         <div>
           <h1>OTW LIST</h1>
-        {otw}</div>
+          {otw}
+        </div>
         <div>
           <h1>PLAYER LIST</h1>
-        {players}</div>
+          {players}
+        </div>
       </>
     );
   }
