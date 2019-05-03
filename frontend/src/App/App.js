@@ -21,6 +21,7 @@ class App extends Component {
     this.doLogin = this.doLogin.bind(this);
     this.doSignup = this.doSignup.bind(this);
     this.checkinPlayer = this.checkinPlayer.bind(this);
+    this.checkoutPlayer = this.checkoutPlayer.bind(this);
   }
 
   async componentDidMount() {
@@ -29,9 +30,21 @@ class App extends Component {
       const user = await jwt.verify(_token, SECRET);
       user._token = _token;
       //check here is the user is checked in (they are in otw or players)
-      let isCheckedIn = await CourtsideCounterAPI.checkStatus(_token);
+      let {
+        isCheckedIn,
+        distance,
+        timestamp,
+        isAtCourt
+      } = await CourtsideCounterAPI.checkStatus(_token);
 
-      this.setState({ currUser: user, isLoading: false, isCheckedIn });
+      this.setState({
+        currUser: user,
+        isLoading: false,
+        isCheckedIn,
+        distance,
+        timestamp,
+        isAtCourt
+      });
     } else {
       this.setState({ isLoading: false });
     }
@@ -39,7 +52,6 @@ class App extends Component {
 
   async checkinPlayer() {
     const { lat, long, timestamp } = await this.getLocationAsync();
-
     // now that we have lat long, we can
     //api request to handleCheckin
     let { isAtCourt, distance } = await CourtsideCounterAPI.checkinPlayer(
@@ -55,6 +67,17 @@ class App extends Component {
       isAtCourt,
       distance,
       isCheckedIn: true
+    });
+  }
+  async checkoutPlayer() {
+    await CourtsideCounterAPI.checkoutPlayer(this.state.currUser._token);
+    this.setState({
+      isCheckedIn: false,
+      isAtCourt: false,
+      lat: null,
+      long: null,
+      timestamp: null,
+      distance: null
     });
   }
 
@@ -118,6 +141,7 @@ class App extends Component {
         doLogin={this.doLogin}
         doSignup={this.doSignup}
         checkinPlayer={this.checkinPlayer}
+        checkoutPlayer={this.checkoutPlayer}
       />
     );
   }

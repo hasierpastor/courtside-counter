@@ -7,17 +7,12 @@ class PlayerPage extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isCheckedIn: false,
-      isAtCourt: false,
-      lat: null,
-      long: null,
-      timestamp: null,
-      locationError: null,
-      distance: null,
       players: [],
       otw: []
     };
     this.handleCheckin = this.handleCheckin.bind(this);
+    this.handleCheckout = this.handleCheckout.bind(this);
+    this.handleUpdate = this.handleUpdate.bind(this);
   }
 
   async componentDidMount() {
@@ -62,8 +57,23 @@ class PlayerPage extends Component {
 
   async handleCheckin() {
     try {
-      this.props.checkinPlayer();
+      await this.props.checkinPlayer();
+      this.handleUpdate();
+    } catch (e) {
+      console.error(e);
+    }
+  }
 
+  async handleCheckout() {
+    try {
+      this.props.checkoutPlayer();
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async handleUpdate() {
+    try {
       let responses = await Promise.all([
         CourtsideCounterAPI.getPlayers(this.props.currUser._token),
         CourtsideCounterAPI.getOTW(this.props.currUser._token)
@@ -74,11 +84,8 @@ class PlayerPage extends Component {
       });
     } catch (e) {
       console.error(e);
-      this.setState({ locationError: e });
     }
   }
-
-  async handleCheckout() {}
 
   render() {
     //replace checkin button with checkout and update status button when someone is checked in
@@ -86,9 +93,9 @@ class PlayerPage extends Component {
       <div>
         {this.props.isAtCourt
           ? 'You are at the court!'
-          : `You were ${this.props.distance} miles from the court at ${Date(
+          : `You were ${this.props.distance} miles from the court at ${
               this.props.timestamp
-            )}`}
+            }`}
       </div>
     ) : null;
 
@@ -98,11 +105,14 @@ class PlayerPage extends Component {
         <div className="statusButtons">
           {this.props.isCheckedIn ? (
             <>
-              <Button handleClick={this.handleCheckin}>Update</Button>
               <Button handleClick={this.handleCheckout}>Checkout</Button>
+              <Button handleClick={this.handleCheckin}>Update</Button>
             </>
           ) : (
-            <Button handleClick={this.handleCheckin}>Check In</Button>
+            <>
+              <Button handleClick={this.handleCheckin}>Check In</Button>
+              <Button handleClick={this.handleUpdate}>Update</Button>
+            </>
           )}
         </div>
         <PlayerList otw={this.state.otw} players={this.state.players} />
