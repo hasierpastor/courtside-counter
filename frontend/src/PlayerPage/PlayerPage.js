@@ -32,29 +32,6 @@ class PlayerPage extends Component {
     }
   }
 
-  //function that gets the location and return a promise
-  getLocationAsync() {
-    if (navigator.geolocation) {
-      return new Promise(function(resolve, reject) {
-        navigator.geolocation.getCurrentPosition(
-          function(position) {
-            resolve({
-              long: position.coords.longitude,
-              lat: position.coords.latitude,
-              timestamp: position.timestamp
-            });
-          },
-          function(PostionError) {
-            reject(PostionError);
-          },
-          { enableHighAccuracy: true }
-        );
-      });
-    } else {
-      throw new Error('Geo Location not supported by browser');
-    }
-  }
-
   async handleCheckin() {
     try {
       await this.props.checkinPlayer();
