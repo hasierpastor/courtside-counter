@@ -1,6 +1,7 @@
 const mongoUtil = require('../db/mongoUtil');
 const db = mongoUtil.get();
 const {otw} = require('../db/constants');
+const ObjectId = require('mongodb').ObjectID
 
 
 class OTW {
@@ -14,10 +15,10 @@ class OTW {
       return result;
   }
 
-  static async removeOTW(otwEmail) {
+  static async removeOTW(_id) {
     await db
       .collection(otw)
-      .deleteOne({ email: { $eq: otwEmail } });
+      .deleteOne({ _id: ObjectId(_id)});
     return;
   }
 
@@ -28,8 +29,8 @@ class OTW {
     return;
   }
 
-  static async getOTW(playerEmail) {
-    return await db.collection(otw).findOne({ email: { $eq: playerEmail } });
+  static async getOTW(_id) {
+    return await db.collection(otw).findOne({ _id: ObjectId(_id)});
   }
 
   static async countOTW() {

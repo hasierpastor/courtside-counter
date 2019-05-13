@@ -17,13 +17,13 @@ router.get('/', authenticateUser, async function(req, res, next) {
 });
 
 /**
- * Route handler for GET to /players/count => returns number of players at the court
+ * Route handler for GET to /otw/count => returns number of players at the court
  */
 
 router.get('/count', authenticateUser, async function(req, res, next) {
   try {
-    let playerCount = await OTW.countPlayers();
-    return res.json({ count: playerCount });
+    let OTWCount = await OTW.countOTW();
+    return res.json({ count: OTWCount });
   } catch (err) {
     next(err);
   }
@@ -31,15 +31,14 @@ router.get('/count', authenticateUser, async function(req, res, next) {
 
 /**
  * Route handler for DELETE to /otw => removes players that are on the way to court
- * /SHOULD THIS BE CALLED WHEN PLAYERS UPDATE LOCATION AND ARE AT THE COURT? => MOVE FROM OTW TO AT THE COURT
  */
-router.delete('/', authenticateUser, async function(req, res, next) {
+router.delete('/:id', authenticateUser, async function(req, res, next) {
   try {
-    let otwEmail = req.body.email;
-    await OTW.removeOTW(otwEmail);
+    let _id = req.params.id;
+    await OTW.removeOTW(_id);
     return res.json({
       message: 'Success',
-      otwEmail
+      otwEmail: req.email,
     });
   } catch (err) {
     next(err);
