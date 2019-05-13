@@ -118,10 +118,10 @@ router.post(
 
 router.delete('/checkout', authenticateUser, async function(req, res, next) {
   try {
-    let playerEmail = req.email;
+    let _id = req._id;
     await Promise.all([
-      Player.removePlayer(playerEmail),
-      OTW.removeOTW(playerEmail)
+      Player.removePlayer(_id),
+      OTW.removeOTW(_id)
     ]);
     return res.json({
       message: 'You have successfully checked out!'
@@ -132,14 +132,14 @@ router.delete('/checkout', authenticateUser, async function(req, res, next) {
 });
 
 /**
- * Route handler for GET to /players/status => returns if user is checkedIn (in otw or players)
+ * Route handler for GET to /status/:id => returns if user is checkedIn (in otw or players)
  */
 
-router.get('/status', authenticateUser, async function(req, res, next) {
+router.get('/status/:id', authenticateUser, async function(req, res, next) {
   try {
     let responses = await Promise.all([
-      Player.getPlayer(req.email),
-      OTW.getOTW(req.email)
+      Player.getPlayer(req.params._id),
+      OTW.getOTW(req.params._id)
     ]);
     let [player, otw] = responses;
     let isCheckedIn, distance, timestamp, isAtCourt;
