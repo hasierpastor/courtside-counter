@@ -1,0 +1,42 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": ["_token", "lat", "long", "timestamp"],
+  "properties": {
+    "_token": {
+      "$id": "#/properties/_token",
+      "type": "string",
+      "title": "The Name Schema",
+      "default": "",
+      "examples": ["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI1Y2NiNmE4MmRhNmZiZWVjM2E4Njk1NWIiLCJlbWFpbCI6Im9rMUBvay5jb20iLCJuYW1lIjoib2trIiwiaWF0IjoxNTU3NzcwNjI4fQ.Gl7JvA7raNMHkgp1tMzrxWU4-3yJnVSfXkTta6NQFak"],
+      "pattern": "^(.*)$"
+    },
+    "lat": {
+      "$id": "#/properties/lat",
+      "type": "number",
+      "title": "The Email Schema",
+      "default": "",
+      "examples": [20.8970526],
+      "pattern": "^(.*)$"
+    },
+    "long": {
+      "$id": "#/properties/long",
+      "type": "number",
+      "title": "The Email Schema",
+      "default": "",
+      "examples": [-105.41049969999999],
+      "pattern": "^(.*)$"
+    },
+    "timestamp": {
+      "$id": "#/properties/timestamp",
+      "type": "number",
+      "title": "The Email Schema",
+      "default": "",
+      "examples": [1557772274069],
+      "pattern": "^(.*)$"
+    }
+  }
+}

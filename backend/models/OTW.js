@@ -22,10 +22,10 @@ class OTW {
     return;
   }
 
-  static async addOTW(otwEmail, name, distance, timestamp) {
+  static async addOTW(email, name, lat, long, timestamp, distance, _id) {
     await db
     .collection(otw)
-    .updateOne({ email: { $eq: otwEmail } }, {$set: {distance, timestamp, name}}, {upsert: true});
+    .updateOne({ _id: ObjectId(_id) }, {$set: {distance, timestamp, name, email, lat, long}}, {upsert: true});
     return;
   }
 

@@ -4,12 +4,13 @@ const db = mongoUtil.get();
 const ObjectId = require('mongodb').ObjectID;
 
 class Player {
-  static async addPlayer(playerEmail, name, lat, long, timestamp, distance) {
+  static async addPlayer(email, name, lat, long, timestamp, distance, _id) {
+    console.log('add player');
     await db
       .collection(players)
       .updateOne(
-        { email: { $eq: playerEmail } },
-        { $set: { name, timestamp, distance } },
+        { _id: ObjectId(_id) },
+        { $set: { name, timestamp, distance, lat, long, email } },
         { upsert: true }
       );
     return;

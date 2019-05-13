@@ -17,6 +17,7 @@ function authenticateUser(req, res, next) {
     let token = jwt.verify(tokenStr, SECRET);
     req.name = token.name;
     req.email = token.email;
+    req._id = token._id;
     return next();
   } catch (err) {
     return next(err);

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = new express.Router();
-const { validateSignupSchema, validateLoginSchema } = require('../schema');
+const { validateSignupSchema, validateLoginSchema, validateCheckinSchema } = require('../schema');
 const validateJSONSchema = require('../middleware/validateJSONSchema');
 const { authenticateUser } = require('../middleware/authenticateUser');
 const { getDistanceInMiles } = require('../helpers/getDistanceInMi');
@@ -9,10 +9,10 @@ const Player = require('../models/Player');
 const OTW = require('../models/OTW');
 const User = require('../models/User');
 
-const LAT_LOWER = 37.883581;
-const LONG_LOWER = -122.269655;
-const LAT_UPPER = 37.883284;
-const LONG_UPPER = -122.269609;
+const LAT_UPPER = 37.883581;
+const LONG_UPPER = -122.269655;
+const LAT_LOWER = 37.883284;
+const LONG_LOWER = -122.269409;
 
 router.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   req,
@@ -52,57 +52,67 @@ router.post('/login', validateJSONSchema(validateLoginSchema), async function(
  * If player already checked in return PlayerCheckedIn error
  */
 
-router.post('/checkin', authenticateUser, async function(req, res, next) {
-  try {
-    let { lat, long, timestamp } = req.body;
-    let { email, name } = req;
-    //distance the player is from the court
-    let distance = getDistanceInMiles(lat, long, LAT_LOWER, LONG_LOWER);
+//add validation
 
-    //boolean which is true if plyer at court/false if player on the way => move logic to helpers
-    let isAtCourt =
-      lat < LAT_LOWER &&
-      lat > LAT_UPPER &&
-      long < LONG_LOWER &&
-      long > LONG_UPPER;
-    //TODO: SORT PLAYERS BY TIMESTAMP
-    if (isAtCourt) {
-      //add to player collection and remove from otw collection
-      await Promise.all([
-        Player.addPlayer(email, name, lat, long, timestamp, distance),
-        OTW.removeOTW(email)
-      ]);
+router.post(
+  '/checkin',
+  validateJSONSchema(validateCheckinSchema),
+  authenticateUser,
+  async function(req, res, next) {
+    try {
+      let { lat, long, timestamp } = req.body;
+      let { email, name, _id } = req;
 
-      return res.json({
-        message: 'Checked into court',
-        player: { name, email },
-        distance,
-        timestamp,
-        isAtCourt
-      });
+      //distance the player is from the court
+      let distance = getDistanceInMiles(lat, long, LAT_LOWER, LONG_LOWER);
+
+      //boolean which is true if plyer at court/false if player on the way => move logic to helpers
+      let isAtCourt =
+        lat > LAT_LOWER &&
+        lat < LAT_UPPER &&
+        long < LONG_LOWER &&
+        long > LONG_UPPER;
+      //TODO: SORT PLAYERS BY TIMESTAMP
+      if (isAtCourt) {
+        //add to player collection and remove from otw collection
+        await Promise.all([
+          Player.addPlayer(email, name, lat, long, timestamp, distance, _id),
+          OTW.removeOTW(_id)
+        ]);
+
+        return res.json({
+          message: 'Checked into court',
+          player: { name, email },
+          distance,
+          timestamp,
+          isAtCourt
+        });
+      }
+
+      if (!isAtCourt) {
+        //add to otw collection and remove from player collection
+        await Promise.all([
+          OTW.addOTW(email, name, lat, long, timestamp, distance, _id),
+          Player.removePlayer(_id)
+        ]);
+
+        return res.json({
+          message: 'Added to OTW',
+          player: { name, email },
+          distance,
+          lat,
+          long,
+          timestamp,
+          isAtCourt
+        });
+      } else {
+        throw new PlayerCheckedInError();
+      }
+    } catch (err) {
+      next(err);
     }
-
-    if (!isAtCourt) {
-      //add to otw collection and remove from player collection
-      await Promise.all([
-        OTW.addOTW(email, name, distance, timestamp),
-        Player.removePlayer(email)
-      ]);
-
-      return res.json({
-        message: 'Added to OTW',
-        player: { name, email },
-        distance,
-        timestamp,
-        isAtCourt
-      });
-    } else {
-      throw new PlayerCheckedInError();
-    }
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 /**
  * Route handler for DELETE to /checkout => removes players from court
@@ -111,9 +121,12 @@ router.post('/checkin', authenticateUser, async function(req, res, next) {
 router.delete('/checkout', authenticateUser, async function(req, res, next) {
   try {
     let playerEmail = req.email;
-    await Promise.all([Player.removePlayer(playerEmail), OTW.removeOTW(playerEmail)]);
+    await Promise.all([
+      Player.removePlayer(playerEmail),
+      OTW.removeOTW(playerEmail)
+    ]);
     return res.json({
-      message: 'You have successfully checked out!',
+      message: 'You have successfully checked out!'
     });
   } catch (err) {
     next(err);
@@ -148,10 +161,11 @@ router.get('/status', authenticateUser, async function(req, res, next) {
       distance = player.distance;
       timestamp = player.timestamp;
     }
-    return res.json({ isAtCourt, isCheckedIn, distance, timestamp});
+    return res.json({ isAtCourt, isCheckedIn, distance, timestamp });
   } catch (err) {
     next(err);
   }
 });
 
 module.exports = router;
+

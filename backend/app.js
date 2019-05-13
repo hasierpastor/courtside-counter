@@ -48,6 +48,8 @@ mongoUtil.connect(function(error) {
   /************ GENERAL ERROR HANDLER *******************************/
 
   app.use(function(err, req, res) {
+    // general error handler is not working as intended
+    // res.status is not a function
     res.status(err.status || 500);
     return res.json({
       error: err
