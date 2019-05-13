@@ -7,7 +7,7 @@ const { getDistanceInMiles } = require('../helpers/getDistanceInMi');
 const { PlayerCheckedInError } = require('../errors');
 const Player = require('../models/Player');
 const OTW = require('../models/OTW');
-const Auth = require('../models/Auth');
+const User = require('../models/User');
 
 const LAT_LOWER = 37.883581;
 const LONG_LOWER = -122.269655;
@@ -21,7 +21,7 @@ router.post('/signup', validateJSONSchema(validateSignupSchema), async function(
 ) {
   try {
     let user = req.body;
-    let response = await Auth.signup(user);
+    let response = await User.signup(user);
     return res.json({ _token: response });
   } catch (err) {
     next(err);
@@ -40,7 +40,7 @@ router.post('/login', validateJSONSchema(validateLoginSchema), async function(
 ) {
   try {
     let userEmail = req.body.email;
-    let response = await Auth.login(userEmail);
+    let response = await User.login(userEmail);
     res.json({ _token: response });
   } catch (err) {
     next(err);
