@@ -1,8 +1,9 @@
 const request = require('supertest');
 const app = require('../../app');
-const uuid = require('uuid');
 const mongoUtil = require('../../db/mongoUtil');
-const db = mongoUtil.connect();
+const ObjectId = require('mongodb').ObjectID;
+
+let db;
 
 // beforeEach(async () => {
 //   const user1 = {
@@ -25,8 +26,8 @@ const db = mongoUtil.connect();
 
 describe('POST /signup', () => {
   beforeAll(async () => {
-    console.log(await dbman.server.getDbName(), await dbman.server.getPort(),await dbman.server.getConnectionString() );
-    await dbman.start();
+    mongoUtil.connect();
+    db = mongoUtil.get();
   });
 
   afterAll(async () => {
@@ -37,17 +38,15 @@ describe('POST /signup', () => {
   });
 
   it('it should signup a user', async () => {
-    const mockUser = { _id: uuid(), email: 'john@john.com', name: 'John' };
+    const mockUser = { _id: '123abc', email: 'john@john.com', name: 'John' };
 
     let response1 = await request(app)
       .post('/signup')
       .send(mockUser);
-    console.log(response1.body);
-    console.log(Object.keys(response1.body)[0]);
 
-    const insertedUser = await dbman.db
+    const insertedUser = await db
       .collection('users')
-      .findOne({ email: { $eq: 'john@john.com' } });
+      .findOne({ _id: '123abc'});
 
     expect(Object.keys(response1.body)[0]).toEqual('_token');
     expect(insertedUser).toEqual(mockUser);
