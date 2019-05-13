@@ -17,6 +17,19 @@ router.get('/', authenticateUser, async function(req, res, next) {
 });
 
 /**
+ * Route handler for GET to /otw/:id => return player that is on the way to the court 
+ */
+router.get('/:id', authenticateUser, async function(req, res, next) {
+  try {
+    let _id = req.params.id;
+    let response = await OTW.getOTW(_id);
+    return res.json({otw: response});
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
  * Route handler for GET to /otw/count => returns number of players at the court
  */
 
@@ -30,7 +43,7 @@ router.get('/count', authenticateUser, async function(req, res, next) {
 });
 
 /**
- * Route handler for DELETE to /otw => removes players that are on the way to court
+ * Route handler for DELETE to /otw/:id => removes players that are on the way to court
  */
 router.delete('/:id', authenticateUser, async function(req, res, next) {
   try {

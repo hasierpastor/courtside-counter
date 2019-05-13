@@ -1,21 +1,22 @@
 const mongoUtil = require('../db/mongoUtil');
 const { players } = require('../db/constants');
 const db = mongoUtil.get();
+const ObjectId = require('mongodb').ObjectID;
 
 class Player {
   static async addPlayer(playerEmail, name, lat, long, timestamp, distance) {
     await db
-    .collection(players)
-    .updateOne(
-      { email: { $eq: playerEmail } },
-      { $set: { name, timestamp, distance } },
-      { upsert: true }
-    );
+      .collection(players)
+      .updateOne(
+        { email: { $eq: playerEmail } },
+        { $set: { name, timestamp, distance } },
+        { upsert: true }
+      );
     return;
   }
 
-  static async removePlayer(playerEmail) {
-    await db.collection(players).deleteOne({ email: { $eq: playerEmail } });
+  static async removePlayer(_id) {
+    await db.collection(players).deleteOne({ _id: ObjectId(_id) });
     return;
   }
 
@@ -30,8 +31,8 @@ class Player {
     return await db.collection(players).count();
   }
 
-  static async getPlayer(playerEmail) {
-    return await db.collection(players).findOne({ email: { $eq: playerEmail } });
+  static async getPlayer(_id) {
+    return await db.collection(players).findOne({ _id: ObjectId(_id) });
   }
 }
 

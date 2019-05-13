@@ -1,7 +1,7 @@
 const mongoUtil = require('../db/mongoUtil');
 const db = mongoUtil.get();
 const {otw} = require('../db/constants');
-const ObjectId = require('mongodb').ObjectID
+const ObjectId = require('mongodb').ObjectID;
 
 
 class OTW {
