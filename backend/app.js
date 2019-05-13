@@ -31,7 +31,7 @@ mongoUtil.connect(function(error) {
   /*************** ROUTES ******************************/
   const playerRoutes = require('./routes/player-routes');
   const otwRoutes = require('./routes/otw-routes');
-  const authRoutes = require('./routes/auth-routes');
+  const authRoutes = require('./routes/user-routes');
 
   app.use('/players', playerRoutes);
   app.use('/otw', otwRoutes);
