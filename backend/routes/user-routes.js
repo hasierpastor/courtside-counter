@@ -138,28 +138,34 @@ router.delete('/checkout', authenticateUser, async function(req, res, next) {
 router.get('/status/:id', authenticateUser, async function(req, res, next) {
   try {
     let responses = await Promise.all([
-      Player.getPlayer(req.params._id),
-      OTW.getOTW(req.params._id)
+      Player.getPlayer(req.params.id),
+      OTW.getOTW(req.params.id)
     ]);
     let [player, otw] = responses;
-    let isCheckedIn, distance, timestamp, isAtCourt;
+    let isCheckedIn, distance, timestamp, isAtCourt, lat, long;
     if (!player && !otw) {
       isCheckedIn = false;
       distance = null;
       timestamp = null;
       isAtCourt = false;
+      lat = null;
+      long = null;
     } else if (otw) {
       isCheckedIn = true;
       isAtCourt = false;
       distance = otw.distance;
       timestamp = otw.timestamp;
+      lat = otw.lat;
+      long = otw.long;
     } else {
       isAtCourt = true;
       isCheckedIn = true;
       distance = player.distance;
       timestamp = player.timestamp;
+      lat = player.lat;
+      long = player.long;
     }
-    return res.json({ isAtCourt, isCheckedIn, distance, timestamp });
+    return res.json({ isAtCourt, isCheckedIn, distance, timestamp, lat, long });
   } catch (err) {
     next(err);
   }
