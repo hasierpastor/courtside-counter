@@ -9,10 +9,11 @@ const Player = require('../models/Player');
 const OTW = require('../models/OTW');
 const User = require('../models/User');
 
-const LAT_UPPER = 37.883581;
-const LONG_UPPER = -122.269655;
-const LAT_LOWER = 37.883284;
-const LONG_LOWER = -122.269409;
+const LAT = 37.883452;
+const LONG = -122.269352;
+const PERIMETER_IN_FEET = 200;
+const PERIMETER_IN_MILES = 0.03787878787878788;
+
 
 router.post('/signup', validateJSONSchema(validateSignupSchema), async function(
   req,
@@ -64,14 +65,11 @@ router.post(
       let { email, name, _id } = req;
 
       //distance the player is from the court
-      let distance = getDistanceInMiles(lat, long, LAT_LOWER, LONG_LOWER);
+      let distance = getDistanceInMiles(lat, long, LAT, LONG);
 
       //boolean which is true if plyer at court/false if player on the way => move logic to helpers
-      let isAtCourt =
-        lat > LAT_LOWER &&
-        lat < LAT_UPPER &&
-        long < LONG_LOWER &&
-        long > LONG_UPPER;
+      let isAtCourt = distance < (PERIMETER_IN_FEET / 5280);
+
       //TODO: SORT PLAYERS BY TIMESTAMP
       if (isAtCourt) {
         //add to player collection and remove from otw collection
